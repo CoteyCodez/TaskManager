@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="TaskManager.Business/TaskManager.Business.csproj" />
+  <Project Path="TaskManager.DataAccess/TaskManager.DataAccess.csproj" />
+  <Project Path="TaskManager.Models/TaskManager.Models.csproj" />
+  <Project Path="TaskManager.Utilities/TaskManager.Utilities.csproj" />
+  <Project Path="TaskManager/TaskManager.csproj" />
+</Solution>
