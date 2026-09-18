@@ -8,9 +8,9 @@ namespace TaskManager.Business.IServices
     public interface ITaskItemService
     {
         Task<IEnumerable<TaskItem>> GetAllTasksAssignedToUserAsync(string userId);
-        Task<TaskItem?> GetTaskByIdAsync(int taskId);
-        Task<TaskItem> CreateTaskAsync(TaskItem task);
-        Task<TaskItem> UpdateTaskAsync(TaskItem task);
-        Task<bool> DeleteTaskAsync(int taskId);
+        Task<TaskItem?> GetTaskByIdAsync(int taskId, int organizationId);
+        Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId);
+        Task<TaskItem> UpdateTaskAsync(TaskItem task, int organizationId);
+        Task<bool> DeleteTaskAsync(int taskId, int organizationId);
     }
 }

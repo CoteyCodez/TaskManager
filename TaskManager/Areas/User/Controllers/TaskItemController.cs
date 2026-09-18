@@ -5,14 +5,15 @@ using TaskManager.Models;
 using System.Linq;
 using TaskManager.Business.IServices;
 
-namespace TaskManager.Controllers
+namespace TaskManager.Areas.User.Controllers
 {
+    [Area("User")]
     public class TaskItemController : Controller
     {
         private readonly ITaskItemService _taskItemService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public TaskItemController(UserManager<IdentityUser> userManager, ITaskItemService taskItemService)
+        public TaskItemController(UserManager<ApplicationUser> userManager, ITaskItemService taskItemService)
         {
             _userManager = userManager;
             _taskItemService = taskItemService;
@@ -47,7 +48,7 @@ namespace TaskManager.Controllers
             }
 
             newTask.AssignedToUserId = user.Id;
-            await _taskItemService.CreateTaskAsync(newTask);
+            await _taskItemService.CreateTaskAsync(newTask, user.OrganizationId ?? 0);
             return RedirectToAction("Index");
         }
     }

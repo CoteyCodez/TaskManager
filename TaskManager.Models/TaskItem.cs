@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
+using TaskManager.Models;
 
 namespace TaskManager.Models
 {
@@ -14,13 +14,18 @@ namespace TaskManager.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DueDate { get; set; }
 
+        // Foreign keys
         public string? CreatedById { get; set; }
         [ForeignKey("CreatedById")]
-        public IdentityUser? CreatedBy { get; set; }
+        public ApplicationUser? CreatedBy { get; set; }
 
         public string? AssignedToUserId { get; set; }
         [ForeignKey("AssignedToUserId")]
-        public IdentityUser? AssignedToUser { get; set; }
+        public ApplicationUser? AssignedToUser { get; set; }
+
+        public int? OrganizationId { get; set; }
+        [ForeignKey("OrganizationId")]
+        public Organization? Organization { get; set; }
 
     }
 }

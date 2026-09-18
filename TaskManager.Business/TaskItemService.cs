@@ -15,17 +15,18 @@ namespace TaskManager.Business
         {
             _context = context;
         }
-        public async Task<TaskItem> CreateTaskAsync(TaskItem task)
+        public async Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId)
         {
+            task.OrganizationId = organizationId; // Don't need to do this in the form, but you may want to move it tehre in a hidden field anyway
             _context.TaskItems.Add(task);
             await _context.SaveChangesAsync();
             return task;
         }
 
-        public async Task<bool> DeleteTaskAsync(int taskId)
+        public async Task<bool> DeleteTaskAsync(int taskId, int organizationId)
         {
             var targetTask = await _context.TaskItems.FindAsync(taskId);
-            if (targetTask is null)
+            if (targetTask is null || targetTask.OrganizationId != organizationId)
             {
                 return false;
             }
@@ -42,12 +43,18 @@ namespace TaskManager.Business
                 .ToListAsync();
         }
 
-        public async Task<TaskItem?> GetTaskByIdAsync(int taskId)
+        public async Task<TaskItem?> GetTaskByIdAsync(int taskId, int organizationId)
         {
-            return await _context.TaskItems.FindAsync(taskId);
+            var task = await _context.TaskItems.FindAsync(taskId);
+            if (task is null || task.OrganizationId != organizationId)
+            {
+                return null;
+            }
+
+            return task;
         }
 
-        public async Task<TaskItem> UpdateTaskAsync(TaskItem task)
+        public async Task<TaskItem> UpdateTaskAsync(TaskItem task, int organizationId)
         {
             _context.TaskItems.Update(task);
             await _context.SaveChangesAsync();

@@ -2,8 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using TaskManager.Models;
 
-namespace TaskManager.Controllers
+namespace TaskManager.Areas.User.Controllers
 {
+    [Area("User")]
     public class HomeController : Controller
     {
         public IActionResult Index()
