@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManager.Data;
 
@@ -11,9 +12,11 @@ using TaskManager.Data;
 namespace TaskManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260921190048_ReAddSampleTask")]
+    partial class ReAddSampleTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -298,14 +301,14 @@ namespace TaskManager.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 5,
+                            Id = 1,
                             AssignedToUserId = "e89b78c6-a35d-4c84-a40c-09ddd190f366",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "This is a sample task again",
+                            Description = "This is a sample task",
                             DueDate = new DateTime(2026, 1, 8, 0, 0, 0, 0, DateTimeKind.Utc),
                             OrganizationId = 1,
                             Status = "Assigned",
-                            Title = "Sample Task Again"
+                            Title = "Sample Task"
                         });
                 });
 

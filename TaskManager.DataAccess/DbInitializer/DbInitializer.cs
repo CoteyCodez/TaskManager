@@ -56,6 +56,7 @@ namespace TaskManager.Data.DbInitializer
                     Email = "admintester@gmail.com",
                     EmailConfirmed = true,
                     OrganizationId = 1, 
+                    
                     // Name = "Caleb Otey",
                     // PhoneNumber = "1112223333",
                 }, "Admin123*");

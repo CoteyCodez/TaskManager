@@ -26,9 +26,9 @@ namespace TaskManager.Data
             modelBuilder.Entity<TaskItem>().HasData(
                 new TaskItem
                 {
-                    Id = 1,
-                    Title = "Sample Task",
-                    Description = "This is a sample task",
+                    Id = 5,
+                    Title = "Sample Task Again",
+                    Description = "This is a sample task again",
                     OrganizationId = 1,
                     Status = SD.TaskAssigned,
                     AssignedToUserId = "e89b78c6-a35d-4c84-a40c-09ddd190f366",

@@ -8,6 +8,8 @@ namespace TaskManager.Business.IServices
     public interface ITaskItemService
     {
         Task<IEnumerable<TaskItem>> GetAllTasksAssignedToUserAsync(string userId);
+        Task<IEnumerable<TaskItem>> GetAllTasksInOrganization(ApplicationUser user);
+
         Task<TaskItem?> GetTaskByIdAsync(int taskId, int organizationId);
         Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId);
         Task<TaskItem> UpdateTaskAsync(TaskItem task, int organizationId);

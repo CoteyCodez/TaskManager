@@ -1,0 +1,11 @@
+﻿@using TaskManager.Models
+@model List<TaskItem>
+
+<h1>Internal Tasks</h1>
+
+@foreach(var task in Model)
+{
+    <p>@task.Title</p>
+
+    <p>@task.Description</p>
+}

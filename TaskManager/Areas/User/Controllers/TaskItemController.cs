@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Business;
-using TaskManager.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using TaskManager.Business;
 using TaskManager.Business.IServices;
+using TaskManager.Models;
 
 namespace TaskManager.Areas.User.Controllers
 {
@@ -32,6 +33,19 @@ namespace TaskManager.Areas.User.Controllers
             return View(allTasksAssignedToUser);
         }
 
+           //FIXME
+        public async Task<IActionResult> IndexAll()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var tasksInOrganization = await _taskItemService.GetAllTasksInOrganization(user);
+            return View(tasksInOrganization);
+        }
+
         public async Task<IActionResult> Create()
         {
             return View(); 
@@ -49,6 +63,23 @@ namespace TaskManager.Areas.User.Controllers
 
             newTask.AssignedToUserId = user.Id;
             await _taskItemService.CreateTaskAsync(newTask, user.OrganizationId ?? 0);
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ActionName("Delete")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var task = await _taskItemService.GetTaskByIdAsync(id, user.OrganizationId ?? 0);
+
+            if (task == null || id < 0)
+            {
+                return NotFound();
+            }
+
+            await _taskItemService.DeleteTaskAsync(task.Id, task.OrganizationId ?? 0);
             return RedirectToAction("Index");
         }
     }

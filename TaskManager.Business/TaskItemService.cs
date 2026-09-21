@@ -5,15 +5,18 @@ using Microsoft.EntityFrameworkCore;
 using TaskManager.Business.IServices;
 using TaskManager.Data;
 using TaskManager.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace TaskManager.Business
 {
     public class TaskItemService : ITaskItemService
     {
         private readonly ApplicationDbContext _context;
-        public TaskItemService(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public TaskItemService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
         public async Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId)
         {
@@ -40,6 +43,13 @@ namespace TaskManager.Business
         {
             return await _context.TaskItems
                 .Where(t => t.AssignedToUserId == userId)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetAllTasksInOrganization(ApplicationUser user)
+        {
+            return await _context.TaskItems
+                .Where(t => t.OrganizationId == user.OrganizationId)
                 .ToListAsync();
         }
 
