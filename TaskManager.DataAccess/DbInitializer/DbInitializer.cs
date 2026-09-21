@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TaskManager.Data;
 using TaskManager.Models;
 using TaskManager.Utilities;
+
 
 namespace TaskManager.Data.DbInitializer
 {
@@ -13,25 +10,24 @@ namespace TaskManager.Data.DbInitializer
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ApplicationDbContext _db;
-
+        private readonly ApplicationDbContext _context;
 
         public DbInitializer(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext db)
+            ApplicationDbContext context)
         {
             _roleManager = roleManager;
             _userManager = userManager;
-            _db = db;
+            _context = context;
         }
         public async Task InitializeAsync()
         {
             try
             {
-                if ((await _db.Database.GetPendingMigrationsAsync()).Any())
+                if ((await _context.Database.GetPendingMigrationsAsync()).Any())
                 {
-                    await _db.Database.MigrateAsync();
+                    await _context.Database.MigrateAsync();
                 }
             }
             catch (Exception)
@@ -69,6 +65,7 @@ namespace TaskManager.Data.DbInitializer
                     user = await _userManager.FindByEmailAsync("admintester@gmail.com");
                     await _userManager.AddToRoleAsync(user, SD.RoleLeader);
                 }
+
             }
         }
     }
