@@ -22,4 +22,8 @@
     <ProjectReference Include="..\TaskManager.Utilities\TaskManager.Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
 </Project>

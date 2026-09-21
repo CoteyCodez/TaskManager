@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManager.Data;
 
@@ -12,11 +11,9 @@ using TaskManager.Data;
 namespace TaskManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260921160358_AddInitUserTask2")]
-    partial class AddInitUserTask2
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,13 +243,6 @@ namespace TaskManager.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Organizations");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Microsoft"
-                        });
                 });
 
             modelBuilder.Entity("TaskManager.Models.TaskItem", b =>
@@ -297,19 +287,6 @@ namespace TaskManager.Data.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("TaskItems");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AssignedToUserId = "e89b78c6-a35d-4c84-a40c-09ddd190f366",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "This is a sample task",
-                            DueDate = new DateTime(2026, 1, 8, 0, 0, 0, 0, DateTimeKind.Utc),
-                            OrganizationId = 1,
-                            Status = "Assigned",
-                            Title = "Sample Task"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -12,6 +12,8 @@ namespace TaskManager.Data.DbInitializer
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
+        //private readonly ITaskItemService _taskItemService;
+
         public DbInitializer(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
@@ -36,6 +38,14 @@ namespace TaskManager.Data.DbInitializer
                 throw;
             }
 
+            Organization organization = _context.Organizations.FirstOrDefault();
+            if (organization == null)
+            {
+                organization = new Organization { Name = "Microsoft" };
+                _context.Organizations.Add(organization);
+                await _context.SaveChangesAsync();
+            }
+
             if (!await _roleManager.RoleExistsAsync(SD.RoleLeader))
             {
                 await _roleManager.CreateAsync(new IdentityRole(SD.RoleLeader));
@@ -55,8 +65,8 @@ namespace TaskManager.Data.DbInitializer
                     UserName = "admintester@gmail.com",
                     Email = "admintester@gmail.com",
                     EmailConfirmed = true,
-                    OrganizationId = 1, 
-                    
+                    OrganizationId = organization.Id, 
+                   
                     // Name = "Caleb Otey",
                     // PhoneNumber = "1112223333",
                 }, "Admin123*");
@@ -67,6 +77,23 @@ namespace TaskManager.Data.DbInitializer
                     await _userManager.AddToRoleAsync(user, SD.RoleLeader);
                 }
 
+            }
+
+            if (user != null && !_context.TaskItems.Any())
+            {
+                _context.TaskItems.Add(new TaskItem
+                {
+                    Title = "Sample Task",
+                    Description = "This is a sample task",
+                    Status = "Assigned",
+                    CreatedAt = DateTime.UtcNow,
+                    DueDate = DateTime.UtcNow.AddDays(7),
+                    OrganizationId = 1,
+                    AssignedToUserId = user.Id,
+                    CreatedById = user.Id
+                });
+
+                await _context.SaveChangesAsync();
             }
         }
     }
