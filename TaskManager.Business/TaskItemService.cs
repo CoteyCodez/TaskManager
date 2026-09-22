@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text;
 using TaskManager.Business.IServices;
 using TaskManager.Data;
 using TaskManager.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace TaskManager.Business
 {
@@ -53,10 +54,11 @@ namespace TaskManager.Business
                 .ToListAsync();
         }
 
-        public async Task<TaskItem?> GetTaskByIdAsync(int taskId, int organizationId)
+        public async Task<TaskItem?> GetTaskByIdAsync(int taskId)
         {
             var task = await _context.TaskItems.FindAsync(taskId);
-            if (task is null || task.OrganizationId != organizationId)
+
+            if (task is null)
             {
                 return null;
             }
@@ -64,7 +66,7 @@ namespace TaskManager.Business
             return task;
         }
 
-        public async Task<TaskItem> UpdateTaskAsync(TaskItem task, int organizationId)
+        public async Task<TaskItem> UpdateTaskAsync(TaskItem task)
         {
             _context.TaskItems.Update(task);
             await _context.SaveChangesAsync();

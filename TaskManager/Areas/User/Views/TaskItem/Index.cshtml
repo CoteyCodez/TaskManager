@@ -9,4 +9,9 @@
     <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline;">
         <button type="submit">Delete</button>
     </form>
+    <button>
+        <a asp-action="Update" asp-route-id="@task.Id" style="display:inline;">
+            Update
+        </a>
+    </button>
 }

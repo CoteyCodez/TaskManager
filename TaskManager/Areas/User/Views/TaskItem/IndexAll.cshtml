@@ -3,9 +3,16 @@
 
 <h1>Internal Tasks</h1>
 
-@foreach(var task in Model)
+@foreach (var task in Model)
 {
-    <p>@task.Title</p>
-
-    <p>@task.Description</p>
+    <p>Title: @task.Title</p>
+    <p>Description: @task.Description</p>
+    <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline;">
+        <button type="submit">Delete</button>
+    </form>
+    <button>
+        <a asp-action="Update" asp-route-id="@task.Id" style="display:inline;">
+            Update
+        </a>
+    </button>
 }

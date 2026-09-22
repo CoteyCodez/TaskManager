@@ -1,0 +1,23 @@
+﻿@using TaskManager.Models
+@using TaskManager.Models.ViewModels
+@model UpdateVM
+
+<form method="POST">
+    <label asp-for="Title">Title</label>
+    <input asp-for="Title" />
+
+    <label asp-for="Description">Description</label>
+    <input asp-for="Description" />
+
+    <label asp-for="DueDate">Due Date</label>
+    <input asp-for="DueDate" type="datetime-local" />
+
+    <!-- Label, input and validation tag helper for Role property -->
+    <label asp-for="Status" class="form-label"></label>
+    <select asp-for="Status" asp-items="@Model.TaskStatusList" class="form-control">
+        <option disabled selected>- Select Status -</option>
+        </select>
+
+    <button type="submit">Submit</button>
+
+</form>

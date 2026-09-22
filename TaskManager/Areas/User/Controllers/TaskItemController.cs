@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using TaskManager.Business;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.VisualBasic;
+using System.Security.Claims;
 using TaskManager.Business.IServices;
 using TaskManager.Models;
+using TaskManager.Models.ViewModels;
+using TaskManager.Utilities;
 
 namespace TaskManager.Areas.User.Controllers
 {
@@ -33,7 +36,6 @@ namespace TaskManager.Areas.User.Controllers
             return View(allTasksAssignedToUser);
         }
 
-           //FIXME
         public async Task<IActionResult> IndexAll()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -66,13 +68,55 @@ namespace TaskManager.Areas.User.Controllers
             return RedirectToAction("Index");
         }
 
+        public async Task<IActionResult> Update(int id)
+        {
+            var model = new UpdateVM();
+
+            model.TaskStatusList =
+                [
+                    new SelectListItem { Text = SD.TaskAssigned, Value = SD.TaskAssigned },
+                    new SelectListItem { Text = SD.TaskCompleted, Value = SD.TaskCompleted }    
+                ];
+
+            model.Id = id;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ActionName("Update")]
+        public async Task<IActionResult> UpdatePOST(UpdateVM updateVM)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var existingTask = await _taskItemService.GetTaskByIdAsync(updateVM.Id);
+
+            existingTask.Title = updateVM.Title;
+            existingTask.Description = updateVM.Description;
+            existingTask.Status = updateVM.Status;
+            existingTask.CreatedAt = updateVM.CreatedAt;
+            existingTask.DueDate = updateVM.DueDate;
+
+            await _taskItemService.UpdateTaskAsync(existingTask);
+            return RedirectToAction("Index");
+        }
+
         [HttpPost]
         [ActionName("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var task = await _taskItemService.GetTaskByIdAsync(id, user.OrganizationId ?? 0);
+            var task = await _taskItemService.GetTaskByIdAsync(id);
+
+            if (task.AssignedToUserId != user.Id || task.OrganizationId != user.OrganizationId)
+            {
+                return Forbid();
+            }
 
             if (task == null || id < 0)
             {
