@@ -7,6 +7,10 @@
 {
     <p>Title: @task.Title</p>
     <p>Description: @task.Description</p>
+    <p>Status: @task.Status</p>
+    <p>Due Date: @task.DueDate</p>
+    <p>Created by: @task.CreatedBy?.UserName</p>
+    <p>Assigned to: @task.AssignedToUser?.UserName</p>
     <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline;">
         <button type="submit">Delete</button>
     </form>

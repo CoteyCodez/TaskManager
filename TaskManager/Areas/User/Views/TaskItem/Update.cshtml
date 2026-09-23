@@ -1,6 +1,6 @@
 ﻿@using TaskManager.Models
 @using TaskManager.Models.ViewModels
-@model UpdateVM
+@model TaskItemVM
 
 <form method="POST">
     <label asp-for="Title">Title</label>
@@ -12,11 +12,17 @@
     <label asp-for="DueDate">Due Date</label>
     <input asp-for="DueDate" type="datetime-local" />
 
-    <!-- Label, input and validation tag helper for Role property -->
+    <!-- Label, input and validation tag helper for Status property -->
     <label asp-for="Status" class="form-label"></label>
     <select asp-for="Status" asp-items="@Model.TaskStatusList" class="form-control">
         <option disabled selected>- Select Status -</option>
         </select>
+
+    <!-- Label, input and validation tag helper for OrganizationMember property -->
+    <label asp-for="OrganizationMemberId" class="form-label"></label>
+    <select asp-for="OrganizationMemberId" asp-items="@Model.OrganizationMemberList" class="form-control">
+        <option disabled selected>- Select Organization Member -</option>
+    </select>
 
     <button type="submit">Submit</button>
 

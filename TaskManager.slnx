@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Notes.txt" />
+  </Folder>
   <Project Path="TaskManager.Business/TaskManager.Business.csproj" />
   <Project Path="TaskManager.DataAccess/TaskManager.DataAccess.csproj" />
   <Project Path="TaskManager.Models/TaskManager.Models.csproj" />

@@ -23,6 +23,7 @@ builder.Services.AddControllersWithViews();
 // Registers these services so you can use them in controllers or other services via dependency injection
 builder.Services.AddScoped<ITaskItemService, TaskItemService>();    
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
 
 var app = builder.Build();
 

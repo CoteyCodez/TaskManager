@@ -8,6 +8,7 @@ using TaskManager.Business.IServices;
 using TaskManager.Models;
 using TaskManager.Models.ViewModels;
 using TaskManager.Utilities;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TaskManager.Areas.User.Controllers
 {
@@ -16,11 +17,15 @@ namespace TaskManager.Areas.User.Controllers
     {
         private readonly ITaskItemService _taskItemService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IApplicationUserService _applicationUserService;
 
-        public TaskItemController(UserManager<ApplicationUser> userManager, ITaskItemService taskItemService)
+        public TaskItemController(UserManager<ApplicationUser> userManager, 
+            ITaskItemService taskItemService,
+            IApplicationUserService applicationUserService)
         {
             _userManager = userManager;
             _taskItemService = taskItemService;
+            _applicationUserService = applicationUserService;
         }
 
         public async Task<IActionResult> Index()
@@ -70,7 +75,8 @@ namespace TaskManager.Areas.User.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
-            var model = new UpdateVM();
+            var user = await _userManager.GetUserAsync(User);
+            var model = new TaskItemVM();
 
             model.TaskStatusList =
                 [
@@ -78,14 +84,28 @@ namespace TaskManager.Areas.User.Controllers
                     new SelectListItem { Text = SD.TaskCompleted, Value = SD.TaskCompleted }    
                 ];
 
+            var membersInOrganization = await _applicationUserService.GetAllUsersInOrganizationAsync(user.OrganizationId ?? 0);
+
+            model.OrganizationMemberList = new SelectList(membersInOrganization, "Id", "UserName");
+
             model.Id = id;
+
+            var currentTask = await _taskItemService.GetTaskByIdAsync(id);
+            model.Title = currentTask.Title;
+            model.Description = currentTask.Description;
+            model.Status = currentTask.Status;
+            model.OrganizationMemberId = currentTask.AssignedToUserId;
+            model.CreatedAt = currentTask.CreatedAt;
+            model.DueDate = currentTask.DueDate;
+
+            model.OrganizationMemberUsername = (await _applicationUserService.GetUserByIdAsync(currentTask.AssignedToUserId))?.UserName;           
 
             return View(model);
         }
 
         [HttpPost]
         [ActionName("Update")]
-        public async Task<IActionResult> UpdatePOST(UpdateVM updateVM)
+        public async Task<IActionResult> UpdatePOST(TaskItemVM taskItemVM)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -93,13 +113,13 @@ namespace TaskManager.Areas.User.Controllers
                 return NotFound();
             }
 
-            var existingTask = await _taskItemService.GetTaskByIdAsync(updateVM.Id);
+            var existingTask = await _taskItemService.GetTaskByIdAsync(taskItemVM.Id);
 
-            existingTask.Title = updateVM.Title;
-            existingTask.Description = updateVM.Description;
-            existingTask.Status = updateVM.Status;
-            existingTask.CreatedAt = updateVM.CreatedAt;
-            existingTask.DueDate = updateVM.DueDate;
+            existingTask.Title = taskItemVM.Title;
+            existingTask.Description = taskItemVM.Description;
+            existingTask.Status = taskItemVM.Status;
+            existingTask.CreatedAt = taskItemVM.CreatedAt;
+            existingTask.DueDate = taskItemVM.DueDate;
 
             await _taskItemService.UpdateTaskAsync(existingTask);
             return RedirectToAction("Index");
