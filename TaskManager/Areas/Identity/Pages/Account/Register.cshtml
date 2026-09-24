@@ -27,13 +27,11 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="Input.OrganizationId" class="form-label"></label>
-                <select asp-for="Input.OrganizationId" asp-items="Model.OrganizationSelectList" class="form-select">
-                    <option value="">-- Select Organization (Optional) --</option>
-                </select>
-                <span asp-validation-for="Input.OrganizationId" class="text-danger"></span>
+            <div> 
+                <p>Do you want to create a new organization?</p>
+                <p>Do you want to join an existing organization?</p>
             </div>
+            
             <div class="mb-3">
                 <label asp-for="Input.Role" class="form-label"></label>
                 <select asp-for="Input.Role" asp-items="Model.Roles" class="form-select">

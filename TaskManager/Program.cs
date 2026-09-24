@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Business;
 using TaskManager.Business.IServices;
+using TaskManager.Business.Services;
 using TaskManager.Data;
 using TaskManager.Data.DbInitializer;
 using TaskManager.Models;
@@ -24,6 +25,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ITaskItemService, TaskItemService>();    
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddScoped<IApplicationUserService, ApplicationUserService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
 var app = builder.Build();
 

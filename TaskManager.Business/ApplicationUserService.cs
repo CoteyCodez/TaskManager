@@ -28,5 +28,10 @@ namespace TaskManager.Business
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
+
+        public async Task<ApplicationUser?> RemoveAdminFromOrganization(string userId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        }
     }
 }

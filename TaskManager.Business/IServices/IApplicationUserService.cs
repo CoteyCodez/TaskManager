@@ -8,6 +8,6 @@ namespace TaskManager.Business.IServices
     public interface IApplicationUserService
     {
         Task<IEnumerable<ApplicationUser>> GetAllUsersInOrganizationAsync(int orgId);
-        Task<ApplicationUser?> GetUserByIdAsync(string userId); 
+        Task<ApplicationUser?> GetUserByIdAsync(string userId);
     }
 }

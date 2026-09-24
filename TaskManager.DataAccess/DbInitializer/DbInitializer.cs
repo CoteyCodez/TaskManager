@@ -44,6 +44,13 @@ namespace TaskManager.Data.DbInitializer
                 organization = new Organization { Name = "Microsoft" };
                 _context.Organizations.Add(organization);
                 await _context.SaveChangesAsync();
+
+                if (organization == null)
+                {
+                    organization = new Organization { Name = "Apple" };
+                    _context.Organizations.Add(organization);
+                    await _context.SaveChangesAsync();
+                }
             }
 
             if (!await _roleManager.RoleExistsAsync(SD.RoleLeader))
