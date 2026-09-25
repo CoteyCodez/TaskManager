@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TaskManager.Business.IServices;
+using TaskManager.Business.Services;
 using TaskManager.Models;
+using TaskManager.Utilities;
 
 namespace TaskManager.Areas.User.Controllers
 {
+    [Area("User")]
     public class SettingsController : Controller
     {
         private readonly ITaskItemService _taskItemService;
@@ -25,9 +29,15 @@ namespace TaskManager.Areas.User.Controllers
         }
 
         // GET: SettingsController
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var userId = _userManager.GetUserId(User);
+
+            //Need to include organization in the query with lazy loading to access it in the view
+            var user = await _userManager.Users
+                .Include(u => u.Organization)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
 
             if (user.OrganizationId == null)
             {
@@ -36,13 +46,14 @@ namespace TaskManager.Areas.User.Controllers
 
             // This should return a view where it just shows that they already have one, maybe i can move the if logic into the view
 
-            return View(); 
+            return View(user); 
 
         }
 
         [HttpPost]
+        [ActionName("Index")]
         [ValidateAntiForgeryToken]
-        public ActionResult IndexPOST(string userId, string orgJoinKey, string userRole)
+        public ActionResult IndexPOST(string orgJoinKey, string userRole)
         {
             var user = _userManager.GetUserAsync(User).Result;
 
@@ -52,7 +63,35 @@ namespace TaskManager.Areas.User.Controllers
                 return null;        //May need to fix this
             }
 
+            // _organizationService.RemoveUserFromCurrentOrganization
             _organizationService.AddUserToOrganizationWithRole(user.Id, orgJoinKey, userRole);
+
+            return RedirectToAction("Index", "Home", new { area = "User" });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Remove()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var idHodler = user.Id; 
+
+            if (user == null)
+            {
+                return BadRequest("You are not part of an organization.");
+            }
+            if (User.IsInRole(SD.RoleLeader))
+            {
+                int idHolder = user.OrganizationId.Value;
+                await _organizationService.RemoveAllUsersFromOrganization(user.Id);
+                await _organizationService.DeleteOrganization(idHolder);
+            }
+            else
+            {
+                return Forbid(); 
+            }
+
+            await _organizationService.LeaveOrganization(user.Id);
 
             return RedirectToAction("Index", "Home", new { area = "User" });
         }

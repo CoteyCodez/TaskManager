@@ -40,6 +40,24 @@ namespace TaskManager.Business
             return true;
         }
 
+        public async Task<bool> DeleteUserTasksInOrganizationTaskAsync(int taskId, int organizationId)
+        {
+            var targetTask = await _context.TaskItems.Where(t => t.OrganizationId == organizationId).ToListAsync(); 
+            
+            if (targetTask is null)
+            {
+                return false;
+            }
+
+            foreach (var task in targetTask)
+            {
+                _context.TaskItems.Remove(task);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IEnumerable<TaskItem>> GetAllTasksAssignedToUserAsync(string userId)
         {
             return await _context.TaskItems

@@ -65,6 +65,7 @@ namespace TaskManager.Data.DbInitializer
 
 
             ApplicationUser user = await _userManager.FindByEmailAsync("admintester@gmail.com");
+            
             if (user == null)
             {
                 var result = await _userManager.CreateAsync(new ApplicationUser
@@ -86,6 +87,8 @@ namespace TaskManager.Data.DbInitializer
 
             if (user != null && !_context.TaskItems.Any())
             {
+                user.OrganizationId = organization.Id;
+
                 _context.TaskItems.Add(new TaskItem
                 {
                     Title = "Sample Task",
@@ -93,7 +96,7 @@ namespace TaskManager.Data.DbInitializer
                     Status = "Assigned",
                     CreatedAt = DateTime.UtcNow,
                     DueDate = DateTime.UtcNow.AddDays(7),
-                    OrganizationId = 1,
+                    OrganizationId = organization.Id,
                     AssignedToUserId = user.Id,
                     CreatedById = user.Id
                 });
