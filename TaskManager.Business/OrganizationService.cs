@@ -48,15 +48,9 @@ namespace TaskManager.Business.Services
 
             return organization;
         }
-        public async Task<bool> AddUserToOrganizationWithRole(string userId, string orgJoinKey, string userRole)
+        public async Task<bool> JoinOrganizationWithRoleMember(string userId, string orgJoinKey)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                return false;
-            }
-
+            var user = await _applicationUserService.GetUserByIdAsync(userId);
             // Find organization by join key
             Organization targetOrg = await GetOrganizationByJoinKey(orgJoinKey);
 
@@ -65,19 +59,17 @@ namespace TaskManager.Business.Services
                 return false;
             }
 
-            // Assign role to user 
-            user.OrganizationId = targetOrg.Id;
-            await _context.SaveChangesAsync(); 
+            // Join organization and assign role to user 
+            await _applicationUserService.JoinOrganizationByJoinCode(user.Id, targetOrg.JoinCode);
+            await _userManager.AddToRoleAsync(user, SD.RoleMember);
+
             return true;
         }
-        public async Task<Organization> CreateOrganizationWithRole(string userId, string orgName, string userRole)
+        public async Task<Organization> CreateOrganizationWithRoleLeader(string orgName) // Can add sub-role between Creator and Member here later if you want
         {
             var organization = new Organization { Name = orgName };
             _context.Organizations.Add(organization);
             await _context.SaveChangesAsync();
-
-            // Assign role to user
-            await AddUserToOrganizationWithRole(userId, organization.JoinCode, userRole);
 
             return organization;
         }

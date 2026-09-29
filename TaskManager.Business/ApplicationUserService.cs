@@ -33,5 +33,23 @@ namespace TaskManager.Business
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
+
+        public async Task<ApplicationUser?> JoinOrganizationByJoinCode(string userId, string joinCode)
+        {
+            var targetOrg = await _context.Organizations.FirstOrDefaultAsync(o => o.JoinCode == joinCode);
+            var user = await GetUserByIdAsync(userId);
+
+            if (joinCode == targetOrg.JoinCode)
+            {
+                user.OrganizationId = targetOrg.Id;
+                await _context.SaveChangesAsync();
+                return user;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
     }
 }

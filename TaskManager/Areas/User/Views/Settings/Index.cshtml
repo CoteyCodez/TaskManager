@@ -1,3 +1,20 @@
-﻿<form asp-action="Remove" method="post" style="display:inline;">
-    <button type="submit">Delete</button>
-</form>
+﻿@using Microsoft.AspNetCore.Identity
+@using TaskManager.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="Leave" title="Manage">Settings</a>
+        </li>
+    }
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="Index" title="Manage">Settings</a>
+        </li>
+    }
+</ul>

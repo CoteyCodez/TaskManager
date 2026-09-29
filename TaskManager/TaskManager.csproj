@@ -25,4 +25,8 @@
     <ProjectReference Include="..\TaskManager.DataAccess\TaskManager.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\User\Views\Organization\" />
+  </ItemGroup>
+
 </Project>

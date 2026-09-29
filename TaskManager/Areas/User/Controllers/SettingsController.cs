@@ -28,10 +28,14 @@ namespace TaskManager.Areas.User.Controllers
             _organizationService = organizationService;
         }
 
-        // GET: SettingsController
         public async Task<ActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
+
+            if(string.IsNullOrEmpty(userId))
+            {
+                return NotFound(); 
+            }
 
             //Need to include organization in the query with lazy loading to access it in the view
             var user = await _userManager.Users
@@ -39,130 +43,50 @@ namespace TaskManager.Areas.User.Controllers
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
 
-            if (user.OrganizationId == null)
+            if (user.OrganizationId.HasValue)
             {
-                return NotFound();  // Change this to a view where they can make one
+                return RedirectToAction("Leave");
             }
 
             // This should return a view where it just shows that they already have one, maybe i can move the if logic into the view
 
-            return View(user); 
+            return View(user);
 
         }
 
-        [HttpPost]
-        [ActionName("Index")]
-        [ValidateAntiForgeryToken]
-        public ActionResult IndexPOST(string orgJoinKey, string userRole)
+
+        public IActionResult Leave()
         {
-            var user = _userManager.GetUserAsync(User).Result;
-
-
-            if (orgJoinKey == null || user.OrganizationId == null)
-            {
-                return null;        //May need to fix this
-            }
-
-            // _organizationService.RemoveUserFromCurrentOrganization
-            _organizationService.AddUserToOrganizationWithRole(user.Id, orgJoinKey, userRole);
-
-            return RedirectToAction("Index", "Home", new { area = "User" });
+            return View();
         }
 
         [HttpPost]
+        [ActionName("Leave")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Remove()
+        public async Task<ActionResult> LeavePOST()
         {
             var user = await _userManager.GetUserAsync(User);
-            var idHodler = user.Id; 
+            var idHolder = user.Id;
+            var organization = await _organizationService.GetOrganizationByUserId(idHolder);
 
             if (user == null)
             {
                 return BadRequest("You are not part of an organization.");
             }
+
             if (User.IsInRole(SD.RoleLeader))
             {
-                int idHolder = user.OrganizationId.Value;
-                await _organizationService.RemoveAllUsersFromOrganization(user.Id);
-                await _organizationService.DeleteOrganization(idHolder);
+                await _organizationService.RemoveAllUsersFromOrganization(idHolder);
+                await _organizationService.DeleteOrganization(organization.Id);
             }
             else
             {
-                return Forbid(); 
+                return Forbid();
             }
 
             await _organizationService.LeaveOrganization(user.Id);
 
             return RedirectToAction("Index", "Home", new { area = "User" });
-        }
-
-        // GET: SettingsController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: SettingsController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: SettingsController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: SettingsController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: SettingsController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: SettingsController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: SettingsController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
         }
     }
 }

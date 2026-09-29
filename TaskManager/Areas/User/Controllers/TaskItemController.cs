@@ -127,18 +127,18 @@ namespace TaskManager.Areas.User.Controllers
 
         [HttpPost]
         [ActionName("Delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeletePOST(int taskId)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var task = await _taskItemService.GetTaskByIdAsync(id);
+            var task = await _taskItemService.GetTaskByIdAsync(taskId);
 
             if (task.AssignedToUserId != user.Id || task.OrganizationId != user.OrganizationId)
             {
                 return Forbid();
             }
 
-            if (task == null || id < 0)
+            if (task == null || taskId < 0)
             {
                 return NotFound();
             }
