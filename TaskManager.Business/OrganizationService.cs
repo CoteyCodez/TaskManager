@@ -67,10 +67,10 @@ namespace TaskManager.Business.Services
 
             // Assign role to user 
             user.OrganizationId = targetOrg.Id;
-
+            await _context.SaveChangesAsync(); 
             return true;
         }
-        public async Task<bool> CreateOrganizationWithRole(string userId, string orgName, string userRole)
+        public async Task<Organization> CreateOrganizationWithRole(string userId, string orgName, string userRole)
         {
             var organization = new Organization { Name = orgName };
             _context.Organizations.Add(organization);
@@ -79,7 +79,7 @@ namespace TaskManager.Business.Services
             // Assign role to user
             await AddUserToOrganizationWithRole(userId, organization.JoinCode, userRole);
 
-            return true;
+            return organization;
         }
 
         public async Task<bool> DeleteOrganization(int orgId)
