@@ -9,12 +9,6 @@
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="Leave" title="Manage">Settings</a>
         </li>
+    </ul>
     }
 
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="Index" title="Manage">Settings</a>
-        </li>
-    }
-</ul>
