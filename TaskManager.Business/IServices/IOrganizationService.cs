@@ -18,7 +18,7 @@ namespace TaskManager.Business.IServices
         Task<Organization> GetOrganizationByJoinKey(string orgJoinKey);
         Task<Organization> GetOrganizationByUserId(string userId);
 
-        Task<bool> RemoveFromOrganization(string userId);
+        Task<bool> LeaveOrganization(string callerId, string? targetId);
         Task<bool> RemoveAllUsersFromOrganization(string userId);
     }
 }

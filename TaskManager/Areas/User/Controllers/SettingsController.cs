@@ -80,7 +80,7 @@ namespace TaskManager.Areas.User.Controllers
                 await _organizationService.DeleteOrganization(organization.Id);
             }
 
-            await _organizationService.RemoveFromOrganization(user.Id);
+            await _organizationService.LeaveOrganization(user.Id, null);
 
             return RedirectToAction("Index", "Home", new { area = "User" });
         }

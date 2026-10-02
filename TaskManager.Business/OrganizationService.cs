@@ -146,7 +146,7 @@ namespace TaskManager.Business.Services
 
             foreach (var member in await GetAllUsersInOrganization(userId))
             {
-                await RemoveFromOrganization(member.Id);
+                await LeaveOrganization(userId, member.Id);
             }
 
             // Delete all task items belonging to the organization to avoid FK violations
@@ -164,18 +164,57 @@ namespace TaskManager.Business.Services
 
             return true;
         }
-        public async Task<bool> RemoveFromOrganization(string userId)
+        // This method passes admin tasks back into the queue
+        public async Task<bool> LeaveOrganization(string callerId, string? targetId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            bool isAdmin = await _userManager.IsInRoleAsync(user, SD.RoleLeader);
-
-            if (user == null)
+            var target = await _userManager.FindByIdAsync(targetId);
+            if (target == null)
             {
                 return false;
             }
 
-            user.OrganizationId = null;
+            var caller = await _userManager.FindByIdAsync(callerId);
+            if (caller == null)
+            {
+                return false;
+            }
+
+            bool isAdmin = await _userManager.IsInRoleAsync(caller, SD.RoleLeader);
+
+            var organization = await GetOrganizationByUserId(callerId);
+
+            if (isAdmin)                                // Admin removes another user
+            {
+                if (isAdmin && callerId != targetId) 
+                {
+                    target.OrganizationId = null;
+                }
+            }
+
+            if (!isAdmin && callerId == targetId)      // Member removes self
+            {
+                caller.OrganizationId = null;   
+            }
+
+            if (isAdmin && callerId == targetId)      // Admin removes self
+            {
+                var leaderTasks = await _taskItemService.GetAllTasksAssignedToUserAsync(callerId);
+                var nextUser = await _context.Users.FirstOrDefaultAsync(u => u.OrganizationId == organization.Id && u.Id != callerId);
+                
+                if (nextUser != null)
+                {
+                    foreach (var task in leaderTasks)
+                    {
+                        task.AssignedToUserId = nextUser.Id;
+                    }
+                }
+
+                else
+                {
+                    await RemoveAllUsersFromOrganization(callerId);
+                    await DeleteOrganization(organization.Id);
+                }
+            }
 
             await _context.SaveChangesAsync();
 

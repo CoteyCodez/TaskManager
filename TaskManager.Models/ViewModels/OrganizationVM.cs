@@ -6,8 +6,9 @@ namespace TaskManager.Models.ViewModels
 {
     public class OrganizationVM
     {
+        public string? Name { get; set; }
         [ValidateNever]
-        public string? SelectedUserId { get; set; }
+        public string SelectedUserId { get; set; } = string.Empty; 
 
         [ValidateNever]
         public IEnumerable<SelectListItem>? MembersList { get; set; }

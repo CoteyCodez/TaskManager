@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using TaskManager.Business;
 using TaskManager.Business.IServices;
 using TaskManager.Models;
@@ -26,6 +27,12 @@ namespace TaskManager.Areas.Leader.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+            var org = await _organizationService.GetOrganizationByUserId(user.Id);
+            if (user == null || org == null)
+            {
+                throw new Exception("Either user or organization does not exist");
+            }
+
             var usersInOrg = await _organizationService.GetAllUsersInOrganization(user.Id);
 
             OrganizationVM organizationVM = new OrganizationVM
@@ -34,9 +41,11 @@ namespace TaskManager.Areas.Leader.Controllers
                 {
                     Value = u.Id,
                     Text = u.UserName
-                })
+                }).Where(u => u.Value != user.Id),
 
-            };
+                Name = org.Name
+
+            }; 
 
             return View(organizationVM);
         }
@@ -44,9 +53,15 @@ namespace TaskManager.Areas.Leader.Controllers
         [HttpPost]
         [ActionName("Index")]
         [ValidateAntiForgeryToken]
-        public ActionResult IndexPOST(string userId)
+        public async Task<ActionResult> IndexPOST(OrganizationVM organizationVM)
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+
+            var targetId = organizationVM.SelectedUserId;
+
+            await _organizationService.LeaveOrganization(user.Id, targetId);
+            
+           return RedirectToAction("Index");
         }
     }
 }
