@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\NewFolder1\**" />
+    <Content Remove="Areas\NewFolder1\**" />
+    <EmbeddedResource Remove="Areas\NewFolder1\**" />
+    <None Remove="Areas\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.12" />
@@ -23,10 +30,6 @@
   <ItemGroup>
     <ProjectReference Include="..\TaskManager.Business\TaskManager.Business.csproj" />
     <ProjectReference Include="..\TaskManager.DataAccess\TaskManager.DataAccess.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\User\Views\Organization\" />
   </ItemGroup>
 
 </Project>

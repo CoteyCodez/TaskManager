@@ -17,8 +17,5 @@ namespace TaskManager.Models.ViewModels
 
         [ValidateNever]
         public IEnumerable<SelectListItem> TaskStatusList { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<SelectListItem> OrganizationMemberList { get; set; }
     }
 }

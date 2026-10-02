@@ -6,6 +6,7 @@ using TaskManager.Models;
 
 namespace TaskManager.Areas.User.Controllers
 {
+    [Area("User")]
     public class OrganizationController : Controller
     {
         private readonly IOrganizationService _organizationService;
@@ -25,11 +26,11 @@ namespace TaskManager.Areas.User.Controllers
         [HttpPost]
         [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public ActionResult CreatePOST(string orgName)
+        public async Task<ActionResult> CreatePOST(string orgName)
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
 
-            _organizationService.CreateOrganizationWithRoleLeader(orgName);
+            await _organizationService.CreateOrganizationWithRoleLeader(user.Id, orgName);
 
             return RedirectToAction("Index", "Home", new { area = "User" });
         }
@@ -42,9 +43,9 @@ namespace TaskManager.Areas.User.Controllers
         [HttpPost]
         [ActionName("Join")]
         [ValidateAntiForgeryToken]
-        public ActionResult JoinPOST(string orgJoinKey)
+        public async Task<ActionResult> JoinPOST(string orgJoinKey)
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
 
 
             if (orgJoinKey == null)
@@ -52,7 +53,7 @@ namespace TaskManager.Areas.User.Controllers
                 return NotFound();        //May need to fix this
             }
 
-            _organizationService.JoinOrganizationWithRoleMember(user.Id, orgJoinKey);
+            await _organizationService.JoinOrganizationWithRoleMember(user.Id, orgJoinKey);
 
             return RedirectToAction("Index", "Home", new { area = "User" });
         }

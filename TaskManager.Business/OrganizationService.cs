@@ -51,6 +51,12 @@ namespace TaskManager.Business.Services
         public async Task<bool> JoinOrganizationWithRoleMember(string userId, string orgJoinKey)
         {
             var user = await _applicationUserService.GetUserByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
             // Find organization by join key
             Organization targetOrg = await GetOrganizationByJoinKey(orgJoinKey);
 
@@ -60,17 +66,22 @@ namespace TaskManager.Business.Services
             }
 
             // Join organization and assign role to user 
-            await _applicationUserService.JoinOrganizationByJoinCode(user.Id, targetOrg.JoinCode);
+            await _applicationUserService.JoinOrganizationByJoinCode(userId, targetOrg.JoinCode);
             await _userManager.AddToRoleAsync(user, SD.RoleMember);
 
             return true;
         }
-        public async Task<Organization> CreateOrganizationWithRoleLeader(string orgName) // Can add sub-role between Creator and Member here later if you want
+        public async Task<Organization> CreateOrganizationWithRoleLeader(string userId, string orgName) // Can add sub-role between Creator and Member here later if you want
         {
             var organization = new Organization { Name = orgName };
             _context.Organizations.Add(organization);
-            await _context.SaveChangesAsync();
 
+            var user = await _applicationUserService.GetUserByIdAsync(userId);
+            user.OrganizationId = organization.Id;
+            await _context.SaveChangesAsync(); 
+
+            await _userManager.AddToRoleAsync(user, SD.RoleLeader);
+           
             return organization;
         }
 
@@ -101,6 +112,19 @@ namespace TaskManager.Business.Services
 
             return returnOrganization;
         }
+        public async Task<List<ApplicationUser>> GetAllUsersInOrganization(string userId)   //Only if admin 
+        {
+            var organization = await GetOrganizationByUserId(userId);
+            List<ApplicationUser> organizationMemberList = await _context.Users.Where(o => o.OrganizationId == organization.Id).ToListAsync();
+            return organizationMemberList;
+        }
+
+        public async Task<List<TaskItem>> GetAllTasksInOrganization(string userId)   //Only if admin 
+        {
+            var organization = await GetOrganizationByUserId(userId);
+            List<TaskItem> organizationTaskList = await _context.TaskItems.Where(o => o.OrganizationId == organization.Id).ToListAsync();
+            return organizationTaskList;
+        }
         public async Task<bool> RemoveAllUsersFromOrganization(string userId)   //Only if admin 
         {
             var user = await _applicationUserService.GetUserByIdAsync(userId);
@@ -119,22 +143,18 @@ namespace TaskManager.Business.Services
             }
 
             // Remove all users and related TaskItems from organization 
-            List<ApplicationUser> organizationMemberList = await _context.Users.Where(o => o.OrganizationId == user.OrganizationId).ToListAsync();
-            List<TaskItem> taskItemList = await _context.TaskItems.Where(o => o.OrganizationId == user.OrganizationId).ToListAsync();
 
-            foreach (var member in organizationMemberList)
+            foreach (var member in await GetAllUsersInOrganization(userId))
             {
-                await LeaveOrganization(member.Id);
+                await RemoveFromOrganization(member.Id);
             }
 
             // Delete all task items belonging to the organization to avoid FK violations
 
-            foreach (var task in taskItemList)
+            foreach (var task in await GetAllTasksInOrganization(userId))
             {
                 await _taskItemService.DeleteTaskAsync(task.Id, orgIdHolder);
             }
-
-
 
             // Delete organization after removing all users and their organization tasks
 
@@ -144,7 +164,7 @@ namespace TaskManager.Business.Services
 
             return true;
         }
-        public async Task<bool> LeaveOrganization(string userId)
+        public async Task<bool> RemoveFromOrganization(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
 

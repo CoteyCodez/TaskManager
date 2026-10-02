@@ -1,14 +1,21 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using TaskManager.Models
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+﻿@using TaskManager.Models
+@model ApplicationUser 
 
-<ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User))
-    {
+@if (Model.OrganizationId.HasValue)
+{
+    <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="Leave" title="Manage">Settings</a>
+            </li>
+    </ul>
+}
+
+@if (!Model.OrganizationId.HasValue)
+{
+    <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="Leave" title="Manage">Settings</a>
+            <a class="nav-link text-dark" asp-area="User" asp-controller="Settings" asp-action="JoinOrCreate" title="Manage">Settings</a>
         </li>
     </ul>
-    }
+}
 

@@ -50,7 +50,7 @@ namespace TaskManager.Areas.User.Controllers
 
             // This should return a view where it just shows that they already have one, maybe i can move the if logic into the view
 
-            return View(user);
+            return RedirectToAction("JoinOrCreate");
 
         }
 
@@ -79,12 +79,42 @@ namespace TaskManager.Areas.User.Controllers
                 await _organizationService.RemoveAllUsersFromOrganization(idHolder);
                 await _organizationService.DeleteOrganization(organization.Id);
             }
-            else
+
+            await _organizationService.RemoveFromOrganization(user.Id);
+
+            return RedirectToAction("Index", "Home", new { area = "User" });
+        }
+
+        //JoinOrCreate
+        public IActionResult JoinOrCreate()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ActionName("Join")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> JoinPOST(string orgJoinKey)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return Forbid();
+                return BadRequest("You are not part of an organization.");
             }
 
-            await _organizationService.LeaveOrganization(user.Id);
+            var idHolder = user.Id;            
+
+            if (User.IsInRole(SD.RoleLeader) || User.IsInRole(SD.RoleMember))
+            {
+                return BadRequest("You are already part of an organization.");
+            }
+
+            var joinResult = await _organizationService.JoinOrganizationWithRoleMember(user.Id, orgJoinKey);
+            
+            if (!joinResult) //gonna need to fix this
+            {
+                return BadRequest("You are already part of an organization.");
+            }
 
             return RedirectToAction("Index", "Home", new { area = "User" });
         }

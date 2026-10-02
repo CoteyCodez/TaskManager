@@ -39,19 +39,6 @@ namespace TaskManager.Data.DbInitializer
             }
 
             Organization organization = _context.Organizations.FirstOrDefault();
-            if (organization == null)
-            {
-                organization = new Organization { Name = "Microsoft" };
-                _context.Organizations.Add(organization);
-                await _context.SaveChangesAsync();
-
-                if (organization == null)
-                {
-                    organization = new Organization { Name = "Apple" };
-                    _context.Organizations.Add(organization);
-                    await _context.SaveChangesAsync();
-                }
-            }
 
             if (!await _roleManager.RoleExistsAsync(SD.RoleLeader))
             {
@@ -85,6 +72,19 @@ namespace TaskManager.Data.DbInitializer
 
             }
 
+            else if (user.OrganizationId == null)
+            {
+                user.OrganizationId = organization.Id;
+                await _context.SaveChangesAsync();
+
+                if (!await _userManager.IsInRoleAsync(user, SD.RoleLeader))
+                {
+                    await _userManager.AddToRoleAsync(user, SD.RoleLeader);
+                }
+            }
+
+
+
             if (user != null && !_context.TaskItems.Any())
             {
                 user.OrganizationId = organization.Id;
@@ -93,6 +93,54 @@ namespace TaskManager.Data.DbInitializer
                 {
                     Title = "Sample Task",
                     Description = "This is a sample task",
+                    Status = "Assigned",
+                    CreatedAt = DateTime.UtcNow,
+                    DueDate = DateTime.UtcNow.AddDays(7),
+                    OrganizationId = organization.Id,
+                    AssignedToUserId = user.Id,
+                    CreatedById = user.Id
+                });
+
+                await _context.SaveChangesAsync();
+            }
+
+            //user 2
+
+            ApplicationUser user2 = await _userManager.FindByEmailAsync("usertester@gmail.com");
+
+            if (user2 == null)
+            {
+                var result = await _userManager.CreateAsync(new ApplicationUser
+                {
+                    UserName = "usertester@gmail.com",
+                    Email = "usertester@gmail.com",
+                    EmailConfirmed = true,
+                    OrganizationId = organization.Id,
+
+                }, "User123*");
+
+                if (result.Succeeded)
+                {
+                    user2 = await _userManager.FindByEmailAsync("usertester@gmail.com");
+                    await _userManager.AddToRoleAsync(user, SD.RoleMember);
+                }
+
+            }
+
+            else if (user2.OrganizationId == null)
+            {
+                user2.OrganizationId = organization.Id;
+                await _context.SaveChangesAsync();
+            }
+
+            if (user2 != null && !_context.TaskItems.Any())
+            {
+                user2.OrganizationId = organization.Id;
+
+                _context.TaskItems.Add(new TaskItem
+                {
+                    Title = "User Task",
+                    Description = "This is a user task",
                     Status = "Assigned",
                     CreatedAt = DateTime.UtcNow,
                     DueDate = DateTime.UtcNow.AddDays(7),

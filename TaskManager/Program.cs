@@ -56,9 +56,13 @@ app.MapStaticAssets();
 
 // Make the User area the default area for controller routes
 app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
+
+app.MapControllerRoute(
     name: "default",
-    pattern: "{area=User}/{controller=Home}/{action=Index}/{id?}",
-    defaults: new { area = "User" })
+    pattern: "{area=User}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.MapRazorPages()
