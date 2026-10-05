@@ -28,5 +28,11 @@ namespace TaskManager.Models
         [ForeignKey("OrganizationId")]
         public Organization? Organization { get; set; }
 
+        // Only if private task 
+        public string? PrivateTaskTargetId { get; set; }
+        [ForeignKey("PrivateTaskTargetId")]
+        public ApplicationUser? TargetUser { get; set; }
+
+
     }
 }

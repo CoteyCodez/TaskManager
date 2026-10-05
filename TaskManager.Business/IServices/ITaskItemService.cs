@@ -10,6 +10,8 @@ namespace TaskManager.Business.IServices
 {
     public interface ITaskItemService
     {
+        Task<IEnumerable<TaskItem>> GetAllPrivateUserTasks(string userId);
+
         Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId);
 
         Task<bool> DeleteTaskAsync(int taskId, int organizationId);

@@ -14,11 +14,18 @@ namespace TaskManager.Business
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        public TaskItemService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+
+        private readonly IApplicationUserService _applicationUserService;
+
+        public TaskItemService(ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            IApplicationUserService applicationUserService)
         {
             _context = context;
             _userManager = userManager;
+            _applicationUserService = applicationUserService; 
         }
+
         public async Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId)
         {
             task.OrganizationId = organizationId; // Don't need to do this in the form, but you may want to move it tehre in a hidden field anyway
@@ -58,6 +65,15 @@ namespace TaskManager.Business
             return true;
         }
 
+        public async Task<IEnumerable<TaskItem>> GetAllPrivateUserTasks(string userId)
+        {
+            var privateUser = await _applicationUserService.GetUserByIdAsync(userId);
+            return await _context.TaskItems
+                .Where(t => t.PrivateTaskTargetId == privateUser.PrivateTaskTargetId)
+                .ToListAsync();
+        }
+        
+        // FIXME: Should probably move this to the organization controller to keep logic delineated well
         public async Task<IEnumerable<TaskItem>> GetAllTasksAssignedToUserAsync(string userId)
         {
             return await _context.TaskItems

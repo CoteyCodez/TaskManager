@@ -1,5 +1,6 @@
-﻿@using TaskManager.Models
-@model TaskItem
+﻿@using TaskManager.Models.ViewModels
+@using TaskManager.Utilities
+@model TaskItemVM
 
 <form method="POST">
     <label asp-for="Title">Title</label>
@@ -8,5 +9,16 @@
     <label asp-for="Description">Description</label>
     <input asp-for="Description" />
 
+    @if (User.IsInRole(SD.RoleLeader))
+        {
+            <div class="mb-3">
+                <label asp-for="OrganizationMemberId" class="form-label">Who do you want to assign the task to? </label>
+                <select asp-for="OrganizationMemberId" asp-items="Model.OrganizationMemberList" class="form-select">
+                    <option value="">-- Select User --</option>
+                </select>
+                <span asp-validation-for="OrganizationMemberId" class="text-danger"></span>
+            </div>
+        }
     <button type="submit">Submit</button>
+
 </form>

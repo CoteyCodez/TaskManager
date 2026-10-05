@@ -7,6 +7,7 @@ namespace TaskManager.Business.IServices
 {
     public interface IApplicationUserService
     {
+        Task<string> GetPrivateUserTargetTaskIdAsync(string userId);
         Task<IEnumerable<ApplicationUser>> GetAllUsersInOrganizationAsync(int orgId);
         Task<ApplicationUser?> GetUserByIdAsync(string userId);
         Task<ApplicationUser?> JoinOrganizationByJoinCode(string userId, string joinCode);

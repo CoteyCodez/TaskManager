@@ -19,6 +19,13 @@ namespace TaskManager.Business
             _context = context;
             _userManager = userManager;
         }
+        public async Task<string> GetPrivateUserTargetTaskIdAsync(string userId)
+        {
+            var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            
+            return targetUser.PrivateTaskTargetId;
+        }
+
         public async Task<IEnumerable<ApplicationUser>> GetAllUsersInOrganizationAsync(int orgId)
         {
             return await _context.Users.Where(u => u.OrganizationId == orgId).ToListAsync();

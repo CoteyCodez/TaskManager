@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.VisualBasic;
 using System.Security.Claims;
 using TaskManager.Business.IServices;
+using TaskManager.Business.Services;
 using TaskManager.Models;
 using TaskManager.Models.ViewModels;
 using TaskManager.Utilities;
@@ -18,14 +19,17 @@ namespace TaskManager.Areas.User.Controllers
         private readonly ITaskItemService _taskItemService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IApplicationUserService _applicationUserService;
+        private readonly IOrganizationService _organizationService;
 
         public TaskItemController(UserManager<ApplicationUser> userManager, 
             ITaskItemService taskItemService,
-            IApplicationUserService applicationUserService)
+            IApplicationUserService applicationUserService,
+            IOrganizationService organizationService)
         {
             _userManager = userManager;
             _taskItemService = taskItemService;
             _applicationUserService = applicationUserService;
+            _organizationService = organizationService;
         }
 
         public async Task<IActionResult> Index()
@@ -37,7 +41,7 @@ namespace TaskManager.Areas.User.Controllers
                 return NotFound();
             }
 
-            var allTasksAssignedToUser = (await _taskItemService.GetAllTasksAssignedToUserAsync(user.Id)).ToList();
+            var allTasksAssignedToUser = (await _taskItemService.GetAllPrivateUserTasks(user.Id)).ToList();
             return View(allTasksAssignedToUser);
         }
 
@@ -52,24 +56,60 @@ namespace TaskManager.Areas.User.Controllers
             var tasksInOrganization = await _taskItemService.GetAllTasksInOrganization(user);
             return View(tasksInOrganization);
         }
-
         public async Task<IActionResult> Create()
         {
-            return View(); 
+            var user = await _userManager.GetUserAsync(User);
+            var org = await _organizationService.GetOrganizationByUserId(user.Id);
+
+            if (user == null || org == null)
+            {
+                throw new Exception("Either user or organization does not exist");
+            }
+
+            var usersInOrg = await _organizationService.GetAllUsersInOrganization(user.Id);
+
+            TaskItemVM taskItemVM = new TaskItemVM
+            {
+                OrganizationMemberList = usersInOrg.Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.UserName
+                }),
+
+                OrganizationId = org.Id
+
+            };
+
+            return View(taskItemVM);
         }
 
         [HttpPost]
         [ActionName("Create")]
-        public async Task<IActionResult> CreatePOST(TaskItem newTask)
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> CreatePOST(TaskItemVM newTask)
         {
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
             {
                 return NotFound();
             }
 
-            newTask.AssignedToUserId = user.Id;
-            await _taskItemService.CreateTaskAsync(newTask, user.OrganizationId ?? 0);
+            var membersInOrganization = await _applicationUserService.GetAllUsersInOrganizationAsync(user.OrganizationId ?? 0);
+            var model = new TaskItem
+            {
+                Id = newTask.Id, 
+                Title = newTask.Title,
+                Description = newTask.Description,
+                OrganizationId = newTask.OrganizationId,
+                Status = newTask.Status,
+                AssignedToUserId = newTask.OrganizationMemberId,
+                CreatedAt = newTask.CreatedAt,
+                DueDate = newTask.DueDate,
+            };
+
+            await _taskItemService.CreateTaskAsync(model, user.OrganizationId ?? 0);
+
             return RedirectToAction("Index");
         }
 
@@ -133,7 +173,7 @@ namespace TaskManager.Areas.User.Controllers
 
             var task = await _taskItemService.GetTaskByIdAsync(taskId);
 
-            if (task.AssignedToUserId != user.Id || task.OrganizationId != user.OrganizationId)
+            if (task.AssignedToUserId != user.Id || task.OrganizationId != user.OrganizationId || task.PrivateTaskTargetId != user.PrivateTaskTargetId)
             {
                 return Forbid();
             }

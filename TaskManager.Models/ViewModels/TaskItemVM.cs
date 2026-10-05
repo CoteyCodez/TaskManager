@@ -10,6 +10,7 @@ namespace TaskManager.Models.ViewModels
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? Status { get; set; }
+        public int? OrganizationId { get; set; }
         public string? OrganizationMemberId { get; set; }
         public string? OrganizationMemberUsername { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

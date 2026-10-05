@@ -1,3 +1,8 @@
-﻿<form method="post" asp-action="Leave">
+﻿@using TaskManager.Utilities
+@if (User.IsInRole(SD.RoleLeader))
+{
+    <p>If you leave the organization as a leader, it will delete the entire organization.</p>
+}
+<form method="post" asp-action="Leave">
     <button type="submit">Leave Organization</button>
 </form>
