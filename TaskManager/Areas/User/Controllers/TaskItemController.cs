@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Abstractions;
 using Microsoft.VisualBasic;
@@ -23,16 +24,19 @@ namespace TaskManager.Areas.User.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IApplicationUserService _applicationUserService;
         private readonly IOrganizationService _organizationService;
-
+        private readonly IWebHostEnvironment _webHostEnvironment; 
         public TaskItemController(UserManager<ApplicationUser> userManager, 
             ITaskItemService taskItemService,
             IApplicationUserService applicationUserService,
-            IOrganizationService organizationService)
+            IOrganizationService organizationService, 
+            IWebHostEnvironment webHostEnvironment
+            )
         {
             _userManager = userManager;
             _taskItemService = taskItemService;
             _applicationUserService = applicationUserService;
             _organizationService = organizationService;
+            _webHostEnvironment = webHostEnvironment; 
         }
 
         public async Task<IActionResult> Index()
@@ -90,7 +94,7 @@ namespace TaskManager.Areas.User.Controllers
         [HttpPost]
         [ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreatePOST(TaskItemVM newTask)
+        public async Task<ActionResult> CreatePOST(TaskItemVM newTask, IFormFile? file)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -110,7 +114,34 @@ namespace TaskManager.Areas.User.Controllers
                 AssignedToUserId = newTask.OrganizationMemberId,
                 CreatedAt = newTask.CreatedAt,
                 DueDate = newTask.DueDate,
+                ImageUrl = newTask.ImageUrl
             };
+
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+            if (file != null)
+            {
+                // Don't use the OG name alone, could cause duplication
+                string fileName = Guid.NewGuid().ToString()
+                                    + Path.GetExtension(file.FileName);
+                string uploadPath = Path.Combine("uploads", "taskAttachments");
+                // Final path where you want to upload image
+                string finalPath = Path.Combine(wwwRootPath, uploadPath);
+
+                if (!Directory.Exists(finalPath))
+                    Directory.CreateDirectory(finalPath);
+
+                // Save the new image
+                using (var fileStream = new FileStream(Path.Combine
+                (finalPath, fileName),
+                FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+                }
+
+                model.ImageUrl = Path.Combine(@"\", uploadPath, fileName)
+                                    .Replace("\\", "/");
+            }
 
             await _taskItemService.CreateTaskAsync(model, user.OrganizationId ?? 0);
 

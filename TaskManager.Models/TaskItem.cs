@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TaskManager.Models;
 
@@ -17,6 +18,10 @@ namespace TaskManager.Models
         public DateTime? DueDate { get; set; }
 
         public ICollection<Comment>? Comments { get; set; }
+
+        [ValidateNever]
+        [Display(Name = "Product Image")]
+        public string? ImageUrl { get; set; }
 
         public string? CreatedById { get; set; }
         [ForeignKey("CreatedById")]

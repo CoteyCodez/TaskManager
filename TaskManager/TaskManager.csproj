@@ -32,4 +32,8 @@
     <ProjectReference Include="..\TaskManager.DataAccess\TaskManager.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
 </Project>

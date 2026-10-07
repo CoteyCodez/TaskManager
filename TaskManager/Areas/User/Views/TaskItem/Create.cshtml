@@ -2,7 +2,8 @@
 @using TaskManager.Utilities
 @model TaskItemVM
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data" asp-action="Create">
+    @Html.AntiForgeryToken()
     <label asp-for="Title">Title</label>
     <input asp-for="Title" />
 
@@ -19,6 +20,7 @@
                 <span asp-validation-for="OrganizationMemberId" class="text-danger"></span>
             </div>
         }
+    <input type="file" name="file" class="form-control form-control-sm mt-2" />
     <button type="submit">Submit</button>
 
 </form>

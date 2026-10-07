@@ -23,6 +23,10 @@ namespace TaskManager.Models.ViewModels
         public IEnumerable<Comment>? Comments { get; set; }
 
         [ValidateNever]
+        [Display(Name = "Product Image")]
+        public string? ImageUrl { get; set; }
+
+        [ValidateNever]
         public IEnumerable<SelectListItem> TaskStatusList { get; set; }
 
         [ValidateNever]
