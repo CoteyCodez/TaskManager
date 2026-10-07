@@ -14,6 +14,7 @@ namespace TaskManager.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<TaskItem> TaskItems { get; set; }
         public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

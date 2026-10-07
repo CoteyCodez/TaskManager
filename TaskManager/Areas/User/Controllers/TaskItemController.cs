@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Abstractions;
 using Microsoft.VisualBasic;
 using System.Security.Claims;
+using System.Xml.Linq;
 using TaskManager.Business.IServices;
 using TaskManager.Business.Services;
 using TaskManager.Models;
@@ -54,6 +57,7 @@ namespace TaskManager.Areas.User.Controllers
                 return NotFound();
             }
             var tasksInOrganization = await _taskItemService.GetAllTasksInOrganization(user);
+
             return View(tasksInOrganization);
         }
         public async Task<IActionResult> Create()
@@ -131,10 +135,13 @@ namespace TaskManager.Areas.User.Controllers
             model.Id = id;
 
             var currentTask = await _taskItemService.GetTaskByIdAsync(id);
+
             model.Title = currentTask.Title;
             model.Description = currentTask.Description;
             model.Status = currentTask.Status;
             model.OrganizationMemberId = currentTask.AssignedToUserId;
+            model.OrganizationId = currentTask.OrganizationId;
+            model.Comments = currentTask.Comments;
             model.CreatedAt = currentTask.CreatedAt;
             model.DueDate = currentTask.DueDate;
 
@@ -158,7 +165,18 @@ namespace TaskManager.Areas.User.Controllers
             existingTask.Title = taskItemVM.Title;
             existingTask.Description = taskItemVM.Description;
             existingTask.Status = taskItemVM.Status;
-            existingTask.CreatedAt = taskItemVM.CreatedAt;
+            if (taskItemVM.NewComment != null)
+            {
+                existingTask.Comments.Add(new Comment {
+                    Content = taskItemVM.NewComment,
+
+                    // Foreign keys
+                    AuthorId = user.Id,
+                    TaskItemId = existingTask.Id,
+                    OrganizationId = existingTask.OrganizationId ?? throw new Exception("This task is not attached to an organization."),
+
+                });
+            }
             existingTask.DueDate = taskItemVM.DueDate;
 
             await _taskItemService.UpdateTaskAsync(existingTask);

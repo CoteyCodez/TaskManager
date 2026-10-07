@@ -8,14 +8,16 @@ namespace TaskManager.Models
     {
         public int Id { get; set; }
         [Required]
-        public Guid JoinKey { get; set; } = Guid.NewGuid(); 
-        public string? Title { get; set; }
+        public Guid JoinKey { get; set; } = Guid.NewGuid();
+        [Required]
+        public string Title { get; set; } = string.Empty; 
         public string? Description { get; set; }
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DueDate { get; set; }
 
-        // Foreign keys
+        public ICollection<Comment>? Comments { get; set; }
+
         public string? CreatedById { get; set; }
         [ForeignKey("CreatedById")]
         public ApplicationUser? CreatedBy { get; set; }

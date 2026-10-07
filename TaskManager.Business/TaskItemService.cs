@@ -78,6 +78,7 @@ namespace TaskManager.Business
         {
             return await _context.TaskItems
                 .Where(t => t.AssignedToUserId == userId)
+                .Include(t => t.Comments)
                 .ToListAsync();
         }
 
@@ -85,12 +86,15 @@ namespace TaskManager.Business
         {
             return await _context.TaskItems
                 .Where(t => t.OrganizationId == user.OrganizationId)
+                .Include(t => t.Comments)
                 .ToListAsync();
         }
 
         public async Task<TaskItem?> GetTaskByIdAsync(int taskId)
         {
-            var task = await _context.TaskItems.FindAsync(taskId);
+            var task = await _context.TaskItems
+                .Include(t => t.Comments)
+                .FirstOrDefaultAsync(t => t.Id == taskId); 
 
             if (task is null)
             {

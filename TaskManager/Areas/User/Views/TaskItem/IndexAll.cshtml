@@ -1,7 +1,7 @@
-﻿@using TaskManager.Models
+﻿@using TaskManager.Models.ViewModels
 @model List<TaskItem>
 
-<h1>Internal Tasks</h1>
+<h1>Internal Tasks</h1> @*Think i need a VM to attach the list of comments?*@
 
 @foreach (var task in Model)
 {
@@ -9,8 +9,15 @@
     <p>Description: @task.Description</p>
     <p>Status: @task.Status</p>
     <p>Due Date: @task.DueDate</p>
-    <p>Created by: @task.CreatedBy?.UserName</p>
-    <p>Assigned to: @task.AssignedToUser?.UserName</p>
+    <p>Created by: </p> <!-- FIXME: Need to add this-->
+    <p>Assigned to: @task.AssignedToUser</p>
+    @if (task.Comments != null)
+    {
+        @foreach (var comment in task.Comments)
+        {
+            <p>Comment: @comment.Content</p>
+        }
+    }
     <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline;">
         <button type="submit">Delete</button>
     </form>

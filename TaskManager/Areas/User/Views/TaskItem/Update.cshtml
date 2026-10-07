@@ -17,6 +17,10 @@
     <select asp-for="Status" asp-items="@Model.TaskStatusList" class="form-control">
         <option disabled selected>- Select Status -</option>
         </select>
+    
+    <label asp-for="NewComment" class="form-label"></label>
+    <input asp-for="NewComment" class="form-control" />
+  
 
     <!-- Label, input and validation tag helper for OrganizationMember property -->
     <label asp-for="OrganizationMemberId" class="form-label"></label>
