@@ -11,6 +11,10 @@
     <p>Due Date: @task.DueDate</p>
     <p>Created by: </p> <!-- FIXME: Need to add this-->
     <p>Assigned to: @task.AssignedToUser</p>
+    @if(task.AttachmentUrl != null && task.AttachmentUrl != string.Empty)
+    {
+        <a asp-action="Download" asp-route-filename="@task.AttachmentUrl" class="btn btn-success">Download</a>
+    }
     @if (task.Comments != null)
     {
         @foreach (var comment in task.Comments)

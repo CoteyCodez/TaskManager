@@ -23,8 +23,8 @@ namespace TaskManager.Models.ViewModels
         public IEnumerable<Comment>? Comments { get; set; }
 
         [ValidateNever]
-        [Display(Name = "Product Image")]
-        public string? ImageUrl { get; set; }
+        [Display(Name = "Attachment")]
+        public string? AttachmentUrl { get; set; }
 
         [ValidateNever]
         public IEnumerable<SelectListItem> TaskStatusList { get; set; }

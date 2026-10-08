@@ -3,7 +3,6 @@
 @model TaskItemVM
 
 <form method="POST" enctype="multipart/form-data" asp-action="Create">
-    @Html.AntiForgeryToken()
     <label asp-for="Title">Title</label>
     <input asp-for="Title" />
 

@@ -25,16 +25,20 @@ namespace TaskManager.Areas.User.Controllers
         private readonly IApplicationUserService _applicationUserService;
         private readonly IOrganizationService _organizationService;
         private readonly IWebHostEnvironment _webHostEnvironment; 
+
+        private readonly ILocalFileService _localFileService;
         public TaskItemController(UserManager<ApplicationUser> userManager, 
             ITaskItemService taskItemService,
             IApplicationUserService applicationUserService,
             IOrganizationService organizationService, 
-            IWebHostEnvironment webHostEnvironment
+            IWebHostEnvironment webHostEnvironment,
+            ILocalFileService localFileService
             )
         {
             _userManager = userManager;
             _taskItemService = taskItemService;
             _applicationUserService = applicationUserService;
+            _localFileService = localFileService;
             _organizationService = organizationService;
             _webHostEnvironment = webHostEnvironment; 
         }
@@ -104,6 +108,7 @@ namespace TaskManager.Areas.User.Controllers
             }
 
             var membersInOrganization = await _applicationUserService.GetAllUsersInOrganizationAsync(user.OrganizationId ?? 0);
+            
             var model = new TaskItem
             {
                 Id = newTask.Id, 
@@ -113,35 +118,14 @@ namespace TaskManager.Areas.User.Controllers
                 Status = newTask.Status,
                 AssignedToUserId = newTask.OrganizationMemberId,
                 CreatedAt = newTask.CreatedAt,
-                DueDate = newTask.DueDate,
-                ImageUrl = newTask.ImageUrl
+                DueDate = newTask.DueDate
+                
             };
 
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
+                var fileName = await _localFileService.SaveAttachmentToLocal(file);
+            model.AttachmentUrl = fileName;
 
-            if (file != null)
-            {
-                // Don't use the OG name alone, could cause duplication
-                string fileName = Guid.NewGuid().ToString()
-                                    + Path.GetExtension(file.FileName);
-                string uploadPath = Path.Combine("uploads", "taskAttachments");
-                // Final path where you want to upload image
-                string finalPath = Path.Combine(wwwRootPath, uploadPath);
-
-                if (!Directory.Exists(finalPath))
-                    Directory.CreateDirectory(finalPath);
-
-                // Save the new image
-                using (var fileStream = new FileStream(Path.Combine
-                (finalPath, fileName),
-                FileMode.Create))
-                {
-                    file.CopyTo(fileStream);
-                }
-
-                model.ImageUrl = Path.Combine(@"\", uploadPath, fileName)
-                                    .Replace("\\", "/");
-            }
+            // snippet pulled from herer
 
             await _taskItemService.CreateTaskAsync(model, user.OrganizationId ?? 0);
 
@@ -175,6 +159,9 @@ namespace TaskManager.Areas.User.Controllers
             model.Comments = currentTask.Comments;
             model.CreatedAt = currentTask.CreatedAt;
             model.DueDate = currentTask.DueDate;
+
+            if (currentTask.AttachmentUrl != null)
+                model.AttachmentUrl = currentTask.AttachmentUrl;
 
             model.OrganizationMemberUsername = (await _applicationUserService.GetUserByIdAsync(currentTask.AssignedToUserId))?.UserName;           
 
@@ -234,6 +221,20 @@ namespace TaskManager.Areas.User.Controllers
 
             await _taskItemService.DeleteTaskAsync(task.Id, task.OrganizationId ?? 0);
             return RedirectToAction("Index");
+        }
+
+        public IActionResult Download(string filename)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return NotFound();
+            }
+            var fileBytes = _localFileService.DownloadAttachmentInBytes(filename).Result;
+            if (fileBytes == null)
+            {
+                return NotFound();
+            }
+            return File(fileBytes, "application/octet-stream", filename);
         }
     }
 }

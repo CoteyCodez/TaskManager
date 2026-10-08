@@ -111,18 +111,6 @@ namespace TaskManager.Business
             return task;
         }
 
-        //[HttpGet]
-        //public IActionResult GetFileById(int id)
-        //{
-        //    // Look up the real file path associated with id (e.g., from DB or a safe mapping)
-        //    string path = GetSafeFilePathForId(id);
 
-        //    if (!System.IO.File.Exists(path))
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return PhysicalFile(path, "application/octet-stream", Path.GetFileName(path));
-        //}
     }
 }

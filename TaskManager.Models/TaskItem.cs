@@ -20,8 +20,8 @@ namespace TaskManager.Models
         public ICollection<Comment>? Comments { get; set; }
 
         [ValidateNever]
-        [Display(Name = "Product Image")]
-        public string? ImageUrl { get; set; }
+        [Display(Name = "Attachment")]
+        public string? AttachmentUrl { get; set; }
 
         public string? CreatedById { get; set; }
         [ForeignKey("CreatedById")]
