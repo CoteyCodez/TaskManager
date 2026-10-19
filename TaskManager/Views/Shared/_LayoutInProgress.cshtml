@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TaskManager</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TaskManager.styles.css" asp-append-version="true" />
+
+<style>
+    /* Sidebar is a fixed width on tablet/desktop; only goes full-width/stacked on small (mobile) screens */
+    @@media (min-width: 768px) {
+        .sidebar-nav {
+            flex: 0 0 200px;
+            max-width: 200px;
+            display: flex !important;
+        }
+
+        .main-content {
+            flex: 1 0 0%;
+            max-width: calc(100% - 200px);
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Mobile-only toggle button for the sidebar -->
+        <nav class="navbar navbar-dark bg-black d-md-none py-1">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h6 text-white py-0">Menu</span>
+                <button class="navbar-toggler py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar menu">
+                    <span class="navbar-toggler-icon" style="width: 1.2em; height: 1.2em;"></span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Use min-vh-100 to ensure the row stretches the full height of the viewport -->
+        <div class="row min-vh-100">
+
+            <!-- VERTICAL NAVBAR / SIDEBAR -->
+            <!-- It sits alongside the main content as its own column -->
+            <nav id="sidebarMenu" class="d-md-flex flex-column justify-content-center bg-black col-12 text-white sidebar-nav collapse d-md-block">
+   
+                    <div class="w-100 ">
+                    <ul class="nav flex-column">
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="Alien" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="TaskItem" asp-action="Index">Your Tasks</a>
+                            </li>
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="TaskItem" asp-action="IndexAll">Internal Tasks</a>
+                            </li>
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="Leader" asp-controller="Organization" asp-action="Index">Organization</a>
+                            </li>
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="Settings" asp-action="Index">Settings</a>
+                            </li>
+
+                            <partial name="_LoginPartial" />
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- MAIN PAGE CONTENT -->
+            <main class="col-12 ms-sm-auto px-md-4 main-content">
+                <!-- Your <header> could actually go inside here if you have a page-specific header -->
+                <header class="py-3 mb-4 border-bottom">
+                    <h1>Page</h1>
+                    @RenderBody()
+                </header>
+
+                <p>Your main page content goes here.</p>
+            </main>
+        </div>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - TaskManager - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

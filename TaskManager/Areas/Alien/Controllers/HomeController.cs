@@ -4,7 +4,7 @@ using TaskManager.Models;
 
 namespace TaskManager.Areas.User.Controllers
 {
-    [Area("User")]
+    [Area("Alien")]
     public class HomeController : Controller
     {
         public IActionResult Index()

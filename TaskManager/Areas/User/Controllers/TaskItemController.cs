@@ -1,19 +1,16 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.IdentityModel.Abstractions;
-using Microsoft.VisualBasic;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Xml.Linq;
 using TaskManager.Business.IServices;
-using TaskManager.Business.Services;
+using TaskManager.Data;
 using TaskManager.Models;
 using TaskManager.Models.ViewModels;
 using TaskManager.Utilities;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TaskManager.Areas.User.Controllers
 {
@@ -24,15 +21,18 @@ namespace TaskManager.Areas.User.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IApplicationUserService _applicationUserService;
         private readonly IOrganizationService _organizationService;
-        private readonly IWebHostEnvironment _webHostEnvironment; 
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        private ApplicationDbContext _context; 
 
         private readonly ILocalFileService _localFileService;
-        public TaskItemController(UserManager<ApplicationUser> userManager, 
+        public TaskItemController(UserManager<ApplicationUser> userManager,
             ITaskItemService taskItemService,
             IApplicationUserService applicationUserService,
-            IOrganizationService organizationService, 
+            IOrganizationService organizationService,
             IWebHostEnvironment webHostEnvironment,
-            ILocalFileService localFileService
+            ILocalFileService localFileService,
+            ApplicationDbContext context
             )
         {
             _userManager = userManager;
@@ -40,7 +40,8 @@ namespace TaskManager.Areas.User.Controllers
             _applicationUserService = applicationUserService;
             _localFileService = localFileService;
             _organizationService = organizationService;
-            _webHostEnvironment = webHostEnvironment; 
+            _webHostEnvironment = webHostEnvironment;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -56,18 +57,18 @@ namespace TaskManager.Areas.User.Controllers
             return View(allTasksAssignedToUser);
         }
 
-        public async Task<IActionResult> IndexAll()
-        {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
+            public async Task<IActionResult> IndexAll()
             {
-                return NotFound();
-            }
-            var tasksInOrganization = await _taskItemService.GetAllTasksInOrganization(user);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound();
+                }
 
-            return View(tasksInOrganization);
-        }
+                var tasks = await _taskItemService.GetAllTasksInOrganization(user);
+                return View(tasks.ToList());
+            }
+  
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -236,5 +237,26 @@ namespace TaskManager.Areas.User.Controllers
             }
             return File(fileBytes, "application/octet-stream", filename);
         }
+
+        #region API Calls
+        public async Task<IActionResult> GetAllOrgTasks()
+        {
+            string? userId = null;
+
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!User.IsInRole(SD.RoleLeader) && !User.IsInRole(SD.RoleMember))
+            {            
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+            }
+
+            var tasks = await _organizationService.GetAllTasksInOrganization(userId);
+            return Json(new { data = tasks });
+        }
+        #endregion
     }
 }
