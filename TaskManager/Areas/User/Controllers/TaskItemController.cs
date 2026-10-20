@@ -57,18 +57,16 @@ namespace TaskManager.Areas.User.Controllers
             return View(allTasksAssignedToUser);
         }
 
-            public async Task<IActionResult> IndexAll()
+        public async Task<IActionResult> IndexAll()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                var tasks = await _taskItemService.GetAllTasksInOrganization(user);
-                return View(tasks.ToList());
+                return NotFound();
             }
-  
+
+            return View();
+        }
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);

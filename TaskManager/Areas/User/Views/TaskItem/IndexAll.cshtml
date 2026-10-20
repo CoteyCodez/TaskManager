@@ -2,31 +2,19 @@
 
 <h1>Internal Tasks</h1>
 
-<table id="userTblData" class="table table-striped table-bordered" style="width:100%">
+<div class="card-body" style="min-height: 500px;">
+    <table id="userTblData" class="table" style="width:100%">
     <thead>
         <tr>
             <th>Title</th>
             <th>Description</th>
             <th>Status</th>
-            <th>Due Date</th>
-            <th>Created By ID</th>
-            <th>Assigned To ID</th>
+
         </tr>
     </thead>
-    <tbody>
-        @foreach (var task in Model)
-        {
-            <tr>
-                <td>@task.Title</td>
-                <td>@task.Description</td>
-                <td>@task.Status</td>
-                <td>@task.DueDate</td>
-                <td>@task.CreatedById</td>
-                <td>@task.AssignedToUserId</td>
-            </tr>
-        }
-    </tbody>
+
 </table>
+</div>
 
 @section Scripts {
     <script src="~/js/organizationTasks.js" asp-append-version="true"></script>
