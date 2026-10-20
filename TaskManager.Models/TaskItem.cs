@@ -27,7 +27,7 @@ namespace TaskManager.Models
         [ForeignKey("CreatedById")]
         public ApplicationUser? CreatedBy { get; set; }
 
-        public string? AssignedToUserId { get; set; }
+        public string? AssignedToUserId { get; set; }       //Only for org tasks
         [ForeignKey("AssignedToUserId")]
         public ApplicationUser? AssignedToUser { get; set; }
 
@@ -36,7 +36,7 @@ namespace TaskManager.Models
         public Organization? Organization { get; set; }
 
         // Only if private task 
-        public string? PrivateTaskTargetId { get; set; }
+        public string? PrivateTaskTargetId { get; set; }    //Only for private tasks
         [ForeignKey("PrivateTaskTargetId")]
         public ApplicationUser? TargetUser { get; set; }
 

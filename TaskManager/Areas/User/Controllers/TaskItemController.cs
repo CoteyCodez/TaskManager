@@ -46,15 +46,16 @@ namespace TaskManager.Areas.User.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
+            //var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+            //if (user == null)
+            //{
+            //    return NotFound();
+            //}
 
-            var allTasksAssignedToUser = (await _taskItemService.GetAllPrivateUserTasks(user.Id)).ToList();
-            return View(allTasksAssignedToUser);
+            //var allTasksAssignedToUser = (await _taskItemService.GetAllPrivateUserTasks(user.Id)).ToList();
+            //return View(allTasksAssignedToUser);
+            return RedirectToAction("IndexAll");
         }
 
         public async Task<IActionResult> IndexAll()
@@ -208,8 +209,9 @@ namespace TaskManager.Areas.User.Controllers
 
             var task = await _taskItemService.GetTaskByIdAsync(taskId);
 
-            if (task.AssignedToUserId != user.Id || task.OrganizationId != user.OrganizationId || task.PrivateTaskTargetId != user.PrivateTaskTargetId)
-            {
+            if (task.AssignedToUserId != user.Id 
+                || task.OrganizationId != user.OrganizationId)
+                {
                 return Forbid();
             }
 
