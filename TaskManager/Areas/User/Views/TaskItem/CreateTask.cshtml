@@ -6,8 +6,8 @@
     <label asp-for="Title">Title</label>
     <input asp-for="Title" />
 
-    <label asp-for="Description">Description</label>
-    <input asp-for="Description" />
+    <label asp-for="Description" class="form-label">Description</label>
+    <input asp-for="Description" class="form-control" />
 
     @if (User.IsInRole(SD.RoleLeader))
         {

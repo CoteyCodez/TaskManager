@@ -1,21 +1,23 @@
-﻿@using TaskManager.Models
-@model List<TaskItem>
-<h1>User's Individual Tasks</h1>
+﻿@model List<TaskItem>
 
-@foreach(var task in Model)
-{
-    <p>Title: @task.Title</p>
-    <p>Description: @task.Description</p>
-    <p>Status: @task.Status</p>
-    <p>Due Date: @task.DueDate</p>
-    <p>Created by: @task.CreatedBy?.UserName</p>
+<div class="card-body" style="min-height: 500px;">
+    <table id="userTblData" class="table" style="width:100%">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Assigned To</th>
+                <th>Due Date</th>
+                <th>Functions</th>
+            </tr>
+        </thead>
 
-    <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline;">
-        <button type="submit">Delete</button>
-    </form>
-    <button>
-        <a asp-action="Update" asp-route-id="@task.Id" style="display:inline;">
-            Update
-        </a>
-    </button>
+    </table>
+</div>
+<a asp-area="User" asp-controller="TaskItem" asp-action="CreateTask"
+   asp-route-personal="true">
+    <button>Create New Task</button>
+</a>
+@section Scripts {
+    <script src="~/js/personalTasks.js" asp-append-version="true"></script>
 }

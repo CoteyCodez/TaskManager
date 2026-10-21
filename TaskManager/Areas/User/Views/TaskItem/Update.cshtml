@@ -3,14 +3,14 @@
 @model TaskItemVM
 
 <form method="POST">
-    <label asp-for="Title">Title</label>
-    <input asp-for="Title" />
+    <label asp-for="Title" class="form-label">Title</label>
+    <input asp-for="Title" class="form-control" />
 
-    <label asp-for="Description">Description</label>
-    <input asp-for="Description" />
+    <label asp-for="Description" class="form-label">Description</label>
+    <input asp-for="Description" class="form-control" />
 
-    <label asp-for="DueDate">Due Date</label>
-    <input asp-for="DueDate" type="datetime-local" />
+    <label asp-for="DueDate" class="form-label">Due Date</label>
+    <input asp-for="DueDate" type="datetime-local" class="form-control" />
 
     <!-- Label, input and validation tag helper for Status property -->
     <label asp-for="Status" class="form-label"></label>
@@ -18,16 +18,17 @@
         <option disabled selected>- Select Status -</option>
         </select>
     
-    <label asp-for="NewComment" class="form-label"></label>
+    <label asp-for="NewComment" class="form-label">Comment</label>
     <input asp-for="NewComment" class="form-control" />
   
 
     <!-- Label, input and validation tag helper for OrganizationMember property -->
-    <label asp-for="OrganizationMemberId" class="form-label"></label>
+    <label asp-for="OrganizationMemberId" class="form-label">Assigned User:</label>
     <select asp-for="OrganizationMemberId" asp-items="@Model.OrganizationMemberList" class="form-control">
         <option disabled selected>- Select Organization Member -</option>
     </select>
 
+    <br /> 
     <button type="submit">Submit</button>
 
 </form>

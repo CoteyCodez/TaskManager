@@ -46,6 +46,7 @@ namespace TaskManager.Areas.User.Controllers
 
         public async Task<IActionResult> Index()
         {
+
             //var user = await _userManager.GetUserAsync(User);
 
             //if (user == null)
@@ -55,7 +56,13 @@ namespace TaskManager.Areas.User.Controllers
 
             //var allTasksAssignedToUser = (await _taskItemService.GetAllPrivateUserTasks(user.Id)).ToList();
             //return View(allTasksAssignedToUser);
-            return RedirectToAction("IndexAll");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            ViewBag.Name = "Personal Tasks";
+            return View();
         }
 
         public async Task<IActionResult> IndexAll()
@@ -65,11 +72,12 @@ namespace TaskManager.Areas.User.Controllers
             {
                 return NotFound();
             }
-
+            ViewBag.Name = "Team Tasks";
             return View();
         }
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> CreateTask(bool personal)
         {
+            ViewBag.Title = "Create Task";
             var user = await _userManager.GetUserAsync(User);
             var org = await _organizationService.GetOrganizationByUserId(user.Id);
 
@@ -78,27 +86,31 @@ namespace TaskManager.Areas.User.Controllers
                 throw new Exception("Either user or organization does not exist");
             }
 
-            var usersInOrg = await _organizationService.GetAllUsersInOrganization(user.Id);
+            TaskItemVM taskItemVM = new TaskItemVM(); 
 
-            TaskItemVM taskItemVM = new TaskItemVM
+            if (!personal)
             {
-                OrganizationMemberList = usersInOrg.Select(u => new SelectListItem
+                var usersInOrg = await _organizationService.GetAllUsersInOrganization(user.Id);
+                taskItemVM.OrganizationMemberList = usersInOrg.Select(u => new SelectListItem
                 {
                     Value = u.Id,
                     Text = u.UserName
-                }),
+                });
+                taskItemVM.OrganizationId = org.Id; 
+            }
 
-                OrganizationId = org.Id
+            taskItemVM.OrganizationId = null;
+            taskItemVM.OrganizationMemberList = null; 
 
-            };
+
 
             return View(taskItemVM);
         }
 
         [HttpPost]
-        [ActionName("Create")]
+        [ActionName("CreateTeamTask")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreatePOST(TaskItemVM newTask, IFormFile? file)
+        public async Task<ActionResult> CreateTaskPOST(TaskItemVM newTask, IFormFile? file)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -107,7 +119,7 @@ namespace TaskManager.Areas.User.Controllers
                 return NotFound();
             }
 
-            var membersInOrganization = await _applicationUserService.GetAllUsersInOrganizationAsync(user.OrganizationId ?? 0);
+            // var membersInOrganization = await _applicationUserService.GetAllUsersInOrganizationAsync(user.OrganizationId ?? 0);
             
             var model = new TaskItem
             {
@@ -122,7 +134,7 @@ namespace TaskManager.Areas.User.Controllers
                 
             };
 
-                var fileName = await _localFileService.SaveAttachmentToLocal(file);
+            var fileName = await _localFileService.SaveAttachmentToLocal(file);
             model.AttachmentUrl = fileName;
 
             // snippet pulled from herer
@@ -134,6 +146,7 @@ namespace TaskManager.Areas.User.Controllers
 
         public async Task<IActionResult> Update(int id)
         {
+            ViewBag.Name = "Update Task";
             var user = await _userManager.GetUserAsync(User);
             var model = new TaskItemVM();
 
@@ -239,6 +252,15 @@ namespace TaskManager.Areas.User.Controllers
         }
 
         #region API Calls
+        public async Task<IActionResult> GetAllPersonalTasks()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var allTasksAssignedToUser = (await _taskItemService.GetAllPrivateUserTasks(userId)).ToList();
+
+            return Json(new { data = allTasksAssignedToUser });
+        }
         public async Task<IActionResult> GetAllOrgTasks()
         {
             string? userId = null;

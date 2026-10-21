@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using TaskManager.Utilities
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -49,21 +50,21 @@
    
                     <div class="w-100 ">
                     <ul class="nav flex-column">
-                            <li class="nav-item text-center">
+                            @* <li class="nav-item text-center">
                                 <a class="nav-link text-light text-break px-1" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li> *@
+                            <li class="nav-item text-center">
+                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="TaskItem" asp-action="Index">Personal Tasks</a>
                             </li>
                             <li class="nav-item text-center">
-                                <a class="nav-link text-light text-break px-1" asp-area="Alien" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="TaskItem" asp-action="IndexAll">Team Tasks</a>
                             </li>
+                            @if(User.IsInRole(SD.RoleLeader))
+                            {
                             <li class="nav-item text-center">
-                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="TaskItem" asp-action="Index">Your Tasks</a>
+                                <a class="nav-link text-light text-break px-1" asp-area="Leader" asp-controller="Organization" asp-action="Index">Manage Team </a>
                             </li>
-                            <li class="nav-item text-center">
-                                <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="TaskItem" asp-action="IndexAll">Internal Tasks</a>
-                            </li>
-                            <li class="nav-item text-center">
-                                <a class="nav-link text-light text-break px-1" asp-area="Leader" asp-controller="Organization" asp-action="Index">Organization</a>
-                            </li>
+                            }                            
                             <li class="nav-item text-center">
                                 <a class="nav-link text-light text-break px-1" asp-area="User" asp-controller="Settings" asp-action="Index">Settings</a>
                             </li>
@@ -76,12 +77,11 @@
             <!-- MAIN PAGE CONTENT -->
             <main class="col-12 ms-sm-auto px-md-4 main-content">
                 <!-- Your <header> could actually go inside here if you have a page-specific header -->
-                <header class="py-3 mb-4 border-bottom">
-                    <h1>Page</h1>
-                    @RenderBody()
+                <header class="py-3 mb-4">
+                    <h1>@ViewBag.Name</h1>
                 </header>
 
-                <p>Your main page content goes here.</p>
+                @RenderBody()
             </main>
         </div>
     </div>

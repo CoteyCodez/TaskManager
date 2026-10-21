@@ -30,6 +30,6 @@ namespace TaskManager.Models.ViewModels
         public IEnumerable<SelectListItem> TaskStatusList { get; set; }
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> OrganizationMemberList { get; set; }
+        public IEnumerable<SelectListItem>? OrganizationMemberList { get; set; }
     }
 }
