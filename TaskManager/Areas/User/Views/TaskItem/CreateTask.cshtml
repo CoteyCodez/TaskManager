@@ -2,24 +2,26 @@
 @using TaskManager.Utilities
 @model TaskItemVM
 
-<form method="POST" enctype="multipart/form-data" asp-action="Create">
-    <label asp-for="Title">Title</label>
-    <input asp-for="Title" />
+<form method="POST" enctype="multipart/form-data" asp-action="CreateTask">
+
+    <label asp-for="Title" class="form-label">Title</label>
+    <input asp-for="Title" class="form-control" />
 
     <label asp-for="Description" class="form-label">Description</label>
     <input asp-for="Description" class="form-control" />
 
-    @if (User.IsInRole(SD.RoleLeader))
-        {
-            <div class="mb-3">
-                <label asp-for="OrganizationMemberId" class="form-label">Who do you want to assign the task to? </label>
-                <select asp-for="OrganizationMemberId" asp-items="Model.OrganizationMemberList" class="form-select">
-                    <option value="">-- Select User --</option>
-                </select>
-                <span asp-validation-for="OrganizationMemberId" class="text-danger"></span>
-            </div>
-        }
+    <div class="mb-3">
+        <label asp-for="OrganizationMemberId" class="form-label">Who do you want to assign the task to? </label>
+        <select asp-for="OrganizationMemberId" asp-items="Model.OrganizationMemberList" class="form-select">
+            <option value="">-- Select User --</option>
+        </select>
+        <span asp-validation-for="OrganizationMemberId" class="text-danger"></span>
+    </div>
+
+
+    <label for="file" class="form-label">Attach a file?</label>
     <input type="file" name="file" class="form-control form-control-sm mt-2" />
+    <br />
     <button type="submit">Submit</button>
 
 </form>

@@ -19,6 +19,7 @@ namespace TaskManager.Models.ViewModels
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DueDate { get; set; }
         public string? CreatedById { get; set; }
+        public string? PrivateTaskTargetId { get; set; }
         public string? NewComment { get; set; }
         public IEnumerable<Comment>? Comments { get; set; }
 

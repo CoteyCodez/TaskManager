@@ -6,18 +6,19 @@
             <tr>
                 <th>Title</th>
                 <th>Description</th>
-                <th>Assigned To</th>
                 <th>Due Date</th>
+                <th>Status</th>
                 <th>Functions</th>
             </tr>
         </thead>
 
     </table>
 </div>
-<a asp-area="User" asp-controller="TaskItem" asp-action="CreateTask"
-   asp-route-personal="true">
-    <button>Create New Task</button>
+
+<a asp-area="User" asp-controller="TaskItem" asp-action="CreateTask" class="button">
+    Create New Task
 </a>
+
 @section Scripts {
-    <script src="~/js/personalTasks.js" asp-append-version="true"></script>
+    <script src="~/js/organizationUserTasks.js" asp-append-version="true"></script>
 }

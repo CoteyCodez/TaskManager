@@ -12,7 +12,7 @@ namespace TaskManager.Business.IServices
     {
         Task<IEnumerable<TaskItem>> GetAllPrivateUserTasks(string userId);
 
-        Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId);
+        Task<TaskItem> CreateTaskAsync(TaskItem task, string userId);
 
         Task<bool> DeleteTaskAsync(int taskId, int organizationId);
 

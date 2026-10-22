@@ -6,12 +6,11 @@ $(document).ready(function () {
 
 function loadDataTable() {
     userDataTable = $('#userTblData').DataTable({
-        ajax: '/user/taskItem/getAllPersonalTasks',     //This is the same (controller-action) URL we would search on the webpage
+        ajax: '/user/taskItem/getAllTasksAssignedToUserInOrganization',     //This is the same (controller-action) URL we would search on the webpage
         pageLength: 10, 
         columns: [
             { data: 'title'},      //Must match a property name of the product class
             { data: 'description' },
-            { data: 'assignedToUserId' },
             { data: 'dueDate' },
             { data: 'status' },
             {

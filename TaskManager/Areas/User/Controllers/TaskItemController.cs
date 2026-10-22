@@ -61,23 +61,24 @@ namespace TaskManager.Areas.User.Controllers
             {
                 return NotFound();
             }
-            ViewBag.Name = "Personal Tasks";
+            ViewBag.Name = "Your tasks";
             return View();
         }
 
         public async Task<IActionResult> IndexAll()
         {
+            ViewBag.Name = "Team Tasks";
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound();
             }
-            ViewBag.Name = "Team Tasks";
+            
             return View();
         }
-        public async Task<IActionResult> CreateTask(bool personal)
+        public async Task<IActionResult> CreateTask()
         {
-            ViewBag.Title = "Create Task";
+            ViewBag.Name = "Create Task";
             var user = await _userManager.GetUserAsync(User);
             var org = await _organizationService.GetOrganizationByUserId(user.Id);
 
@@ -88,27 +89,24 @@ namespace TaskManager.Areas.User.Controllers
 
             TaskItemVM taskItemVM = new TaskItemVM(); 
 
-            if (!personal)
+
+            var usersInOrg = await _organizationService.GetAllUsersInOrganization(user.Id);
+            taskItemVM.OrganizationMemberList = usersInOrg.Select(u => new SelectListItem
             {
-                var usersInOrg = await _organizationService.GetAllUsersInOrganization(user.Id);
-                taskItemVM.OrganizationMemberList = usersInOrg.Select(u => new SelectListItem
-                {
-                    Value = u.Id,
-                    Text = u.UserName
-                });
-                taskItemVM.OrganizationId = org.Id; 
-            }
+                Value = u.Id,
+                Text = u.UserName,
 
-            taskItemVM.OrganizationId = null;
-            taskItemVM.OrganizationMemberList = null; 
-
-
-
+            });
+            taskItemVM.OrganizationId = org.Id;
             return View(taskItemVM);
+
+            //taskItemVM.OrganizationId = null;
+            //taskItemVM.OrganizationMemberList = null; 
+            //taskItemVM.PrivateTaskTargetId = user.PrivateTaskTargetId; 
         }
 
         [HttpPost]
-        [ActionName("CreateTeamTask")]
+        [ActionName("CreateTask")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateTaskPOST(TaskItemVM newTask, IFormFile? file)
         {
@@ -126,6 +124,7 @@ namespace TaskManager.Areas.User.Controllers
                 Id = newTask.Id, 
                 Title = newTask.Title,
                 Description = newTask.Description,
+                //PrivateTaskTargetId = newTask.PrivateTaskTargetId, 
                 OrganizationId = newTask.OrganizationId,
                 Status = newTask.Status,
                 AssignedToUserId = newTask.OrganizationMemberId,
@@ -137,11 +136,10 @@ namespace TaskManager.Areas.User.Controllers
             var fileName = await _localFileService.SaveAttachmentToLocal(file);
             model.AttachmentUrl = fileName;
 
-            // snippet pulled from herer
+            // snippet pulled from here
 
-            await _taskItemService.CreateTaskAsync(model, user.OrganizationId ?? 0);
-
-            return RedirectToAction("Index");
+            await _taskItemService.CreateTaskAsync(model, user.Id);
+            return model.OrganizationId == null ? RedirectToAction("Index") : RedirectToAction("IndexAll");
         }
 
         public async Task<IActionResult> Update(int id)
@@ -222,9 +220,8 @@ namespace TaskManager.Areas.User.Controllers
 
             var task = await _taskItemService.GetTaskByIdAsync(taskId);
 
-            if (task.AssignedToUserId != user.Id 
-                || task.OrganizationId != user.OrganizationId)
-                {
+            if (task.OrganizationId != user.OrganizationId)
+            {
                 return Forbid();
             }
 
@@ -234,7 +231,7 @@ namespace TaskManager.Areas.User.Controllers
             }
 
             await _taskItemService.DeleteTaskAsync(task.Id, task.OrganizationId ?? 0);
-            return RedirectToAction("Index");
+            return task.OrganizationId == null ? RedirectToAction("Index") : RedirectToAction("IndexAll");
         }
 
         public IActionResult Download(string filename)
@@ -252,12 +249,12 @@ namespace TaskManager.Areas.User.Controllers
         }
 
         #region API Calls
-        public async Task<IActionResult> GetAllPersonalTasks()
+        public async Task<IActionResult> GetAllTasksAssignedToUserInOrganization()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var allTasksAssignedToUser = (await _taskItemService.GetAllPrivateUserTasks(userId)).ToList();
+            var allTasksAssignedToUser = (await _taskItemService.GetAllTasksAssignedToUserAsync(userId)).ToList();
 
             return Json(new { data = allTasksAssignedToUser });
         }

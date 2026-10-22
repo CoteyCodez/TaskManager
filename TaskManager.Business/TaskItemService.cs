@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.NativeInterop;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -26,9 +27,20 @@ namespace TaskManager.Business
             _applicationUserService = applicationUserService; 
         }
 
-        public async Task<TaskItem> CreateTaskAsync(TaskItem task, int organizationId)
+        public async Task<TaskItem> CreateTaskAsync(TaskItem task, string userId)
         {
-            task.OrganizationId = organizationId; // Don't need to do this in the form, but you may want to move it tehre in a hidden field anyway
+            var user = await _applicationUserService.GetUserByIdAsync(userId);
+
+            if (user.OrganizationId != null)
+            {
+                task.OrganizationId = user.OrganizationId;
+            }
+
+            else
+            {
+                throw new Exception("User does not belong to an organization.");
+            }
+
             _context.TaskItems.Add(task);
             await _context.SaveChangesAsync();
             return task;
@@ -76,8 +88,9 @@ namespace TaskManager.Business
         // FIXME: Should probably move this to the organization controller to keep logic delineated well
         public async Task<IEnumerable<TaskItem>> GetAllTasksAssignedToUserAsync(string userId)
         {
+            var user = await _applicationUserService.GetUserByIdAsync(userId);
             return await _context.TaskItems
-                .Where(t => t.AssignedToUserId == userId)
+                .Where(t => t.AssignedToUser == user)
                 .Include(t => t.Comments)
                 .ToListAsync();
         }
